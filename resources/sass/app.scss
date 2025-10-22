@@ -1,0 +1,18 @@
+// Fonts
+@import url('https://fonts.bunny.net/css?family=Nunito');
+
+// Variables
+@import 'variables';
+
+// Bootstrap
+@import 'bootstrap/scss/bootstrap';
+
+/* 例: ドロップダウンのデフォルトの三角を消す */
+.navbar .dropdown-toggle::after {
+  content: none;
+}
+
+/* 例: トグルアイコン（bars）に合わせてちょっと余白調整したい場合 */
+.navbar-toggler .fa-bars {
+  line-height: 1;
+}
