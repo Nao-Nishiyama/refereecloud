@@ -49,6 +49,8 @@ Route::group(['middleware' => 'auth'], function(){
             ->name('referees');
         Route::get('/referees/show', [RefereesController::class, 'show'])
             ->name('referees.show');    
+        Route::get('/referees/showForChief', [RefereesController::class, 'showForChief'])
+            ->name('referees.showForChief');    
         Route::get('/referees/create', [RefereesController::class, 'create'])
             ->name('referees.create');
         Route::post('/referees/store', [RefereesController::class, 'store'])

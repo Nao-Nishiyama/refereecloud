@@ -29,6 +29,7 @@
     @endphp
 
     @if ($allRefs->isNotEmpty())
+    @if (Auth::user()->role_id === 1 || Auth::user()->role_id === 2)
     <div class="row gx-5 d-flex justify-content-center table-responsive">
         <div class="btn-group mb-3 col-3" role="group">
             {{-- 通常 --}}
@@ -52,42 +53,49 @@
             @endcan
         </div>
         <div class="col-7"></div>
-    </div>
+    </div>        
+    @endif
     <div class="row gx-5 d-flex justify-content-center table-responsive">
         <div class="col-2">
             <h6 class="mt-4">資格</h6>
             <ul class="list-group">
-                <li class="list-group-item d-flex justify-content-between align-items-center position-relative
-                            @class(['active' => empty($licId)])">
+                <li class="list-group-item d-flex justify-content-between align-items-center position-relative @class(['active' => empty($licId)])">
                     <span>すべて</span>
                     <span>{{ $countsByLic->sum() }}</span>
-                    <a href="{{ route('admin.referees.show') }}" class="stretched-link text-decoration-none"></a>
+                    @canany(['admin','committee'])
+                        <a href="{{ route('admin.referees.show') }}" class="stretched-link"></a>
+                    @endcanany
+                    @canany(['chief'])
+                        <a href="{{ route('admin.referees.showForChief', ['organization' => optional(Auth::user()->referee)->organization_id]) }}" class="stretched-link"></a>
+                    @endcanany
                 </li>
 
             @foreach ($lics as $lic)
-                <li class="list-group-item d-flex justify-content-between align-items-center position-relative
-                        @class(['active' => $licId === $lic->id])">
+                <li class="list-group-item d-flex justify-content-between align-items-center position-relative @class(['active' => $licId === $lic->id])">
                 <span>{{ $lic->name }}</span>
                 <span>{{ $countsByLic[$lic->id] ?? 0 }}</span>
-                <a href="{{ route('admin.referees.show', ['license' => $lic->id]) }}"
-                    class="stretched-link text-decoration-none"></a>
+                @canany(['admin','committee'])
+                    <a href="{{ route('admin.referees.show', ['license' => $lic->id]) }}" class="stretched-link"></a>
+                @endcanany
+                @canany(['chief'])
+                    <a href="{{ route('admin.referees.showForChief', ['organization' => optional(Auth::user()->referee)->organization_id,'license' => $lic->id]) }}" class="stretched-link"></a>
+                @endcanany
                 </li>
             @endforeach
             </ul>
         </div>
+        @if (Auth::user()->role_id === 1 || Auth::user()->role_id === 2)
         <div class="col-2">
             <h6 class="mt-4">団体</h6>
             <ul class="list-group">
-                <li class="list-group-item d-flex justify-content-between align-items-center position-relative
-                            @class(['active' => empty($orgId)])">
+                <li class="list-group-item d-flex justify-content-between align-items-center position-relative @class(['active' => empty($orgId)])">
                     <span>すべて</span>
                     <span>{{ $countsByOrg->sum() }}</span>
                     <a href="{{ route('admin.referees.show') }}" class="stretched-link text-decoration-none"></a>
                 </li>
 
             @foreach ($orgs as $org)
-                <li class="list-group-item d-flex justify-content-between align-items-center position-relative
-                        @class(['active' => $orgId === $org->id])">
+                <li class="list-group-item d-flex justify-content-between align-items-center position-relative @class(['active' => $orgId === $org->id])">
                 <span>{{ $org->short_name }}</span>
                 <span>{{ $countsByOrg[$org->id] ?? 0 }}</span>
                 <a href="{{ route('admin.referees.show', ['organization' => $org->id]) }}"
@@ -96,27 +104,41 @@
             @endforeach
             </ul>
         </div>
-        
+        @endif
+
+        @if (Auth::user()->role_id === 3)
+        <div class="col-8">
+        @else
         <div class="col-6">
+        @endif
             <div class="d-flex justify-content-between align-items-center mb-2">
                 @if ($licId)
                 <div>
-                    フィルタ：{{ optional($lics->firstWhere('id', $licId))->name }}
-                    <a href="{{ route('admin.referees.show') }}" class="ms-2 small">解除</a>
-                    <div class="text-muted small">
-                        {{ $refsByLic->count() }} 件
+                    フィルタ：{{ optional($lics->firstWhere('id', $licId))->name }} 級
+                        @if (Auth::user()->role_id === 3)
+                            <a href="{{ route('admin.referees.showForChief', ['organization' => optional(Auth::user()->referee)->organization_id]) }}" class="ms-2 small">解除</a>
+                        @else
+                            <a href="{{ route('admin.referees.show') }}" class="ms-2 small">解除</a>
+                        @endif
+                        <div class="text-muted small">
+                            {{ $refsByLic->count() }} 件
+                        </div>
                     </div>
-                </div>
-                @endif
-                @if ($orgId)
+                @elseif ($orgId)
                 <div>
                     フィルタ：{{ optional($orgs->firstWhere('id', $orgId))->full_name }}
-                    <a href="{{ route('admin.referees.show') }}" class="ms-2 small">解除</a>
-                    <div class="text-muted small">
-                        {{ $refsByOrg->count() }} 件
-                    </div>
+                        @if (Auth::user()->role_id === 3)
+                            <a href="{{ route('admin.referees.showForChief', ['organization' => optional(Auth::user()->referee)->organization_id]) }}" class="ms-2 small">解除</a>
+                        @else
+                            <a href="{{ route('admin.referees.show') }}" class="ms-2 small">解除</a>
+                        @endif
+                        <div class="text-muted small">
+                            {{ $refsByOrg->count() }} 件
+                        </div>
                 </div>
-                @endif
+                @else
+                フィルタ：なし
+                @endif                    
             </div>
             <table class="table align-middle table-hover bg-white border text secondary text-center shadow">
                 <thead class="small table-success text-secondary">

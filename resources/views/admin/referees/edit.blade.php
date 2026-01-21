@@ -93,7 +93,11 @@
             </table>
             <div class="container">
                 <a href="{{ route('admin.profiles.edit', $referee->id)}}" class="btn btn-outline-warning">編集</a>
-                <a href="{{ route('admin.referees.show')}}" class="btn btn-outline-dark">一覧へ戻る</a>
+                @if (Auth::user()->role_id === 3)
+                    <a href="{{ route('admin.referees.showForChief', ['organization' => optional(Auth::user()->referee)->organization_id]) }}" class="btn btn-outline-dark">一覧へ戻る</a>
+                @else
+                    <a href="{{ route('admin.referees.show') }}" class="btn btn-outline-dark">一覧へ戻る</a>
+                @endif
             </div>
         </div>
         <div class="col-md-4">

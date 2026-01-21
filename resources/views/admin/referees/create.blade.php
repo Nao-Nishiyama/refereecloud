@@ -123,7 +123,7 @@
 
         <div class="text-center mt-3">
             <button type="button" id="btn-open-check" class="btn btn-primary px-5">登録する</button>
-            <a href="{{ route('admin.referees.show') }}" class="btn btn-outline-secondary ms-2">戻る</a>
+            <a href="{{ route('index') }}" class="btn btn-outline-secondary ms-2">戻る</a>
         </div>
         </form>
         

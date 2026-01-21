@@ -116,6 +116,71 @@ class RefereesController extends Controller
         ]);
     }
 
+    public function showForChief(Request $request)
+    {
+        $licId = $request->has('license') ? $request->integer('license') : null;
+        $orgId = $request->has('organization') ? $request->integer('organization') : null;
+
+        // '', 'with', 'only' 以外は '' に落とす
+        $mode = (string) $request->query('trashed', '');
+        if (!in_array($mode, ['', 'with', 'only'], true)) {
+            $mode = '';
+        }
+
+        $canViewTrashed = Gate::allows('referees.viewTrashed');
+
+        $q = \App\Models\Referee::query()->with(['license','organization'])
+            ->when(!is_null($licId), fn($q) => $q->where('license_id', $licId))
+            ->when(!is_null($orgId), fn($q) => $q->where('organization_id', $orgId));
+
+        if ($canViewTrashed) {
+            if ($mode === 'with')  $q->withTrashed();
+            if ($mode === 'only')  $q->onlyTrashed();
+        }
+
+        $allRefs = $this->referee->orderBy('organization_id')->orderBy('registration_number')
+            ->paginate(50)->withQueryString();
+
+        // 一覧データ（資格×団体のAND）
+        $refs = Referee::query()
+            ->when(!is_null($licId), fn($q) => $q->where('license_id', $licId))
+            ->when(!is_null($orgId), fn($q) => $q->where('organization_id', $orgId))
+            ->when($canViewTrashed && $mode==='only', fn($q) => $q->onlyTrashed())
+            ->when($canViewTrashed && $mode==='with',  fn($q) => $q->withTrashed())            ->orderBy('organization_id')->orderBy('registration_number')
+            ->get(); // ページングしたければ ->paginate(20)->withQueryString()
+
+        $refsByLic = Referee::query()->where('organization_id', $orgId)->where('license_id', $licId)->get();
+        $refsByOrg = Referee::query()->where('organization_id', $orgId)->get();
+
+        // 左のカウント（モード反映）
+        $countsByLic = \App\Models\Referee::query()
+            ->where('organization_id', $orgId)
+            ->when($canViewTrashed && $mode==='only', fn($q) => $q->onlyTrashed())
+            ->when($canViewTrashed && $mode==='with',  fn($q) => $q->withTrashed())
+            ->selectRaw('license_id, COUNT(*) as cnt')->groupBy('license_id')->pluck('cnt','license_id');
+        
+        $countsByOrg = \App\Models\Referee::query()
+            ->where('license_id', $licId)
+            ->when($canViewTrashed && $mode==='only', fn($q) => $q->onlyTrashed())
+            ->when($canViewTrashed && $mode==='with',  fn($q) => $q->withTrashed())
+            ->selectRaw('organization_id, COUNT(*) as cnt')->groupBy('organization_id')->pluck('cnt','organization_id');
+
+        return view('admin.referees.show', [
+            'refs' => $refs,
+            'licId' => $licId,
+            'orgId' => $orgId,
+            'refsByLic' => $refsByLic,
+            'refsByOrg' => $refsByOrg,
+            'mode' => $mode,
+            'canViewTrashed' => $canViewTrashed,
+            'countsByLic' => $countsByLic,
+            'countsByOrg' => $countsByOrg,
+            'allRefs' => $allRefs,
+            'lics' => \App\Models\License::orderBy('id')->get(),
+            'orgs' => \App\Models\Organization::orderBy('id')->get(),
+        ]);
+    }
+
     public function create()
     {
         $this->authorize('referees.create');
@@ -191,7 +256,7 @@ class RefereesController extends Controller
             ]);
         });
 
-        return redirect()->route('admin.referees.show')
+        return redirect()->route('index')
             ->with('status', '審判員を登録しました');
     }
 

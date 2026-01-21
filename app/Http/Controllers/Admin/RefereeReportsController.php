@@ -10,6 +10,7 @@ use App\Models\Organization;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 class RefereeReportsController extends Controller
@@ -29,6 +30,7 @@ class RefereeReportsController extends Controller
 
     public function show(Request $request)
     {
+        $user = Auth::user();
         $licId = $request->filled('license') ? (int)$request->license : null;
         $orgId = $request->filled('organization') ? (int)$request->organization : null;
 
@@ -51,7 +53,12 @@ class RefereeReportsController extends Controller
 
         // セレクト用マスタ
         $lics = License::orderBy('id')->get();
-        $orgs = Organization::orderBy('id')->get();
+        $orgs = \App\Models\Organization::query()
+            ->when((int)$user->role_id === 3, function ($q) use ($user) {
+                $q->where('id', $user->organization_id);
+            })
+            ->orderBy('id')
+            ->get();
         
         $allRefs = $this->referee->orderBy('organization_id')->orderBy('registration_number')
             ->paginate(50)->withQueryString();
@@ -89,6 +96,7 @@ class RefereeReportsController extends Controller
             'lics' => $lics,
             'orgs' => $orgs,
             'allRefs' => $allRefs,
+            'user' => $user,
         ]);
     }
 

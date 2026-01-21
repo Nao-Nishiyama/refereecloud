@@ -28,36 +28,40 @@
 
 <div class="container w-75">
     <form method="get" action="{{ route('admin.referees.reports.show') }}" class="row g-2 align-items-end mb-3" id="filters">
-      <div class="col-3">
-        <label class="form-label mb-1">資格</label>
-        <select name="license" class="form-select" onchange="this.form.submit()">
-          <option value="">すべて（{{ $countsByLic->sum() }}）</option>
-          @foreach($lics as $lic)
-            <option value="{{ $lic->id }}"
-              @selected((string)$licId === (string)$lic->id)>
-              {{ $lic->name }}（{{ $countsByLic[$lic->id] ?? 0 }}）
-            </option>
-          @endforeach
-        </select>
-      </div>
-    
-      <div class="col-3">
-        <label class="form-label mb-1">団体</label>
-        <select name="organization" class="form-select" onchange="this.form.submit()">
-          <option value="">すべて（{{ $countsByOrg->sum() }}）</option>
-          @foreach($orgs as $org)
-            <option value="{{ $org->id }}"
-              @selected((string)$orgId === (string)$org->id)>
-              {{ $org->short_name }}（{{ $countsByOrg[$org->id] ?? 0 }}）
-            </option>
-          @endforeach
-        </select>
-      </div>
-
-      <div class="col-3">
-        <button class="btn btn-outline-secondary" hidden>絞り込み</button>
-        <a href="{{ route('admin.referees.reports.show') }}" class="btn btn-outline-dark">リセット</a>
-      </div>
+      @if ($user->role_id === 1 || $user->role_id === 2)
+        <div class="col-3">
+          <label class="form-label mb-1">資格</label>
+          <select name="license" class="form-select" onchange="this.form.submit()">
+            <option value="">すべて（{{ $countsByLic->sum() }}）</option>
+            @foreach($lics as $lic)
+              <option value="{{ $lic->id }}"
+                @selected((string)$licId === (string)$lic->id)>
+                {{ $lic->name }}（{{ $countsByLic[$lic->id] ?? 0 }}）
+              </option>
+            @endforeach
+          </select>
+        </div>
+        <div class="col-3">
+          <label class="form-label mb-1">団体</label>
+          <select name="organization" class="form-select" onchange="this.form.submit()">
+            @if ($user->role_id === 3)
+            <option value="">{{ $user->referee->organization->short_name }}（{{ $countsByOrg[$user->referee->organization->id] ?? 0 }}）</option>
+            @else
+            <option value="">すべて（{{ $countsByOrg->sum() }}）</option>
+            @endif
+            @foreach($orgs as $org)
+              <option value="{{ $org->id }}"
+                @selected((string)$orgId === (string)$org->id)>
+                {{ $org->short_name }}（{{ $countsByOrg[$org->id] ?? 0 }}）
+              </option>
+            @endforeach
+          </select>
+        </div>
+        <div class="col-3">
+          <button class="btn btn-outline-secondary" hidden>絞り込み</button>
+          <a href="{{ route('admin.referees.reports.show') }}" class="btn btn-outline-dark">リセット</a>
+        </div>
+        @endif
     </form>
 
     <div>
@@ -90,6 +94,7 @@
     <table class="table table-sm align-middle text-center">
       <thead>
         <tr>
+            <th></th>
             <th>資格</th>
             <th>氏名</th>
             <th>主</th>
@@ -104,6 +109,9 @@
         </tr>
       </thead>
       <tbody>
+        @php
+            $i = 0;
+        @endphp
         @forelse ($refs as $r)
             @php
                 // 当年はコントローラから $year 渡し済み前提
@@ -117,8 +125,10 @@
 
                 // 3年分に1件でもあれば false、1件も無ければ true
                 $noReports3Years = $userReports->whereIn('year', $years3)->isEmpty();
+                $i = $i + 1;
             @endphp
           <tr @if(method_exists($r,'trashed') && $r->trashed()) class="text-muted" @endif>
+            <td class="text-muted small">{{ $i }}</td>
             <td>{{ $r->license->name }}</td>
             <td>{{ $r->surname_kanji }} {{ $r->name_kanji }}</td>
             @php
@@ -148,8 +158,8 @@
 
                 @php
                     $isTrashed = method_exists($r,'trashed') && $r->trashed();
-                    $authorized = $r->organization_id == Auth::user()->referee->organization_id;
-                    $admin = Auth::user()->role_id == 1;
+                    $authorized = $r->organization_id == $user->referee->organization_id;
+                    $admin = $user->role_id == 1;
                     $approved   = (bool) ($r->approval?->approved ?? false);
                 @endphp
 

@@ -76,11 +76,22 @@
     <a href="{{ route('admin.referees')}}" class="h2 text-decoration-none px-3">審判員管理</a>
     <div class="row mt-4">
         <div class="col-sm-4 mb-3 mb-sm-0">
-            <a href="{{ route('admin.referees.show') }}" class="text-decoration-none text-reset">
+          @if (Auth::user()->role_id === 3)
+          <a href="{{ route('admin.referees.showForChief', ['organization' => optional(Auth::user()->referee)->organization_id]) }}" class="text-decoration-none text-reset">
+          @else
+          <a href="{{ route('admin.referees.show') }}" class="text-decoration-none text-reset">
+              
+          @endif
                 <div class="card position-relative shadow card-hover">
                     <div class="card-body">
                         <h5 class="card-title">一覧</h5>
-                        <h6 class="card-subtitle text-secondary mb-2 text-end">京都府バレーボール協会</h6>
+                        <h6 class="card-subtitle text-secondary mb-2 text-end">
+                          @if (Auth::user()->role_id === 3)
+                              {{Auth::user()->referee->organization->full_name}}
+                          @else
+                              京都府バレーボール協会
+                          @endif
+                        </h6>
                         <hr>
                         <p class="card-text mt-3">京都府バレーボール協会所属審判員のリストを表示します。</p>
                     </div>

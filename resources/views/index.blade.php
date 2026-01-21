@@ -139,7 +139,7 @@
                             <a href="{{route('admin.applications')}}" class="stretched-link"></a>
                         </div>
                     </div>
-                @endcan
+                @endcanany
 
                 @canany(['admin', 'committee'])
                     <div class="col-12 col-md-4">
@@ -157,15 +157,11 @@
                         </div>
                     </div>
                 @endcanany
-
             </div>
-        
-
             <hr>
 
             <h6>審判員管理</h6>
             <div class="row g-3 mb-4">
-                @if(!is_null($myOrgRefCount))
                     <div class="col-12 col-md-4">
                     <div class="card card-action shadow-sm">
                         <div class="card-body d-flex align-items-center gap-3 ">
@@ -174,15 +170,22 @@
                             </div>        
                             <div>
                                 <div class="small text-muted">所属団体の審判員</div>
-                                    @if ($user->role_id === 1 || $user->role_id === 2)
+                                    @if( $user->role_id === 3)
+                                        <div>
+                                            <span class="fs-6 fwbold">{{ $user->referee->organization->short_name }}：</span>
+                                            <span class="fs-4 fw-bold">{{ $myOrgRefCount }}</span>
+                                        </div>
+                                    @elseif ($user->role_id === 2 )
                                         <div>
                                             <span class="fs-6 fwbold">{{ $user->referee->prefecture->name }}：</span>
                                             <span class="fs-4 fw-bold">{{ $RefCount }}</span>
                                         </div>
-                                    @elseif( $user->role_id === 3)
+                                    @else
                                         <div>
-                                            <span class="fs-6 fwbold">{{ $user->referee->organization->short_name }}：</span>
-                                            <span class="fs-4 fw-bold">{{ $myOrgRefCount }}</span>
+                                           @if(!is_null($myOrgRefCount))
+                                            <span class="fs-6 fwbold">{{ $user->referee->prefecture->name }}：</span>
+                                            @endif
+                                            <span class="fs-4 fw-bold">{{ $RefCount }}</span>
                                         </div>
                                     @endif
                                 </div>
@@ -191,11 +194,10 @@
                                 <a href="{{ route('admin.referees.show') }}" class="stretched-link"></a>
                             @endcanany
                             @canany(['chief'])
-                                <a href="{{ route('admin.referees.show', ['organization' => optional(Auth::user()->referee)->organization_id]) }}" class="stretched-link"></a>
+                                <a href="{{ route('admin.referees.showForChief', ['organization' => optional(Auth::user()->referee)->organization_id]) }}" class="stretched-link"></a>
                             @endcanany
                         </div>
                     </div>
-                @endif
 
                 <div class="col-12 col-md-4">
                     <div class="card card-action shadow-sm">
@@ -286,7 +288,7 @@
 
             <hr>
 
-        @endcanany
+       @endcanany
         
         <h6>大会情報（{{$fiscalYear}}）</h6>
 
