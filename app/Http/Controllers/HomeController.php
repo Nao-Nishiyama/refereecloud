@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Referee;
@@ -51,6 +52,16 @@ class HomeController extends Controller
         $today = now();
         $upcomingCompetitions = Competition::whereDate('start_day', '>=', $today->toDateString())->count();
 
+        $startOfFiscalYear = Carbon::now()->month >= 4
+        ? Carbon::now()->startOfYear()->addMonths(3)   // 今年4/1
+        : Carbon::now()->subYear()->startOfYear()->addMonths(3); // 去年4/1
+
+        $endOfFiscalYear = $startOfFiscalYear->copy()->addYear()->subDay(); // 翌年3/31
+
+        $year_comps = Competition::whereBetween('start_day', [$startOfFiscalYear, $endOfFiscalYear])
+            ->orderBy('start_day', 'desc')
+            ->count();
+
         // 今年度（4/1〜翌3/31）の年度番号
         $fiscalYear = $today->month >= 4 ? $today->year : $today->year - 1;
 
@@ -86,7 +97,8 @@ class HomeController extends Controller
             'fiscalYear',
             'RefCount',
             'ReportCount',
-            'ApplCount'
+            'ApplCount',
+            'year_comps'
         ));
     }
 

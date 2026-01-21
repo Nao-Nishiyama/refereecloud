@@ -12,7 +12,7 @@
                         @csrf
 
                         <div class="row mb-3">
-                                <label for="surname_kana" class="col-md-4 col-form-label text-md-end">{{ __('氏（全角カタカナ）') }}</label>
+                                <label for="surname_kana" class="col-md-4 col-form-label text-md-end">{{ __('セイ（全角カタカナ）') }}</label>
                                 <div class="col-md-6">
                                     <input id="surname_kana" type="text" class="form-control @error('surname_kana') is-invalid @enderror" name="surname_kana" value="{{ old('surname_kana') }}" required autocomplete="surname_kana" autofocus>
                                 </div>
@@ -24,7 +24,7 @@
                                 @enderror
                         </div>
                         <div class="row mb-3">
-                                <label for="name_kana" class="col-md-4 col-form-label text-md-end">{{ __('名（全角カタカナ）') }}</label>
+                                <label for="name_kana" class="col-md-4 col-form-label text-md-end">{{ __('メイ（全角カタカナ）') }}</label>
                                 <div class="col-md-6">
                                     <input id="name_kana" type="text" class="form-control @error('name_kana') is-invalid @enderror" name="name_kana" value="{{ old('name_kana') }}" required autocomplete="name_kana" autofocus>
                                 </div>

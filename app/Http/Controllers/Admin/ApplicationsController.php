@@ -65,6 +65,7 @@ class ApplicationsController extends Controller
         $comps = Competition::whereBetween('start_day', [$fyStart, $fyEnd])
             ->withCount(['applications as applicants_count' => fn($q) => $q
             ->select(DB::raw('COUNT(DISTINCT user_id)'))])
+            ->orderBy('start_day', 'desc')
             ->get();
 
         return view('admin.competitions.applications', compact('competitions', 'all', 'trashed', 'comps'));

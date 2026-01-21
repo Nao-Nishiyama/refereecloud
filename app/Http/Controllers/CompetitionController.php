@@ -42,9 +42,17 @@ class CompetitionController extends Controller
         $ref  = Referee::with('categories:id')  // 多対多があるなら
                 ->where('user_id', $user->id)->first();
 
-        // 一覧（typeとnominationsを一緒に）
-        $all_competitions = Competition::with(['type','nominations'])->orderBy('id')->get();
+        $startOfFiscalYear = Carbon::now()->month >= 4
+            ? Carbon::now()->startOfYear()->addMonths(3)   // 今年4/1
+            : Carbon::now()->subYear()->startOfYear()->addMonths(3); // 去年4/1
 
+        $endOfFiscalYear = $startOfFiscalYear->copy()->addYear()->subDay(); // 翌年3/31
+
+        $all_competitions = Competition::with(['type','nominations'])
+            ->whereBetween('start_day', [$startOfFiscalYear, $endOfFiscalYear])
+            ->orderBy('start_day', 'desc')
+            ->get();
+            
         // 対象外扱いの初期値
         $eligibleMap = [];
 

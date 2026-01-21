@@ -15,8 +15,8 @@
                             <i class="fa-solid fa-calendar-check fa-lg"></i>
                         </div>
                         <div>
-                            <div class="small text-muted">今後の大会</div>
-                            <div class="fs-4 fw-bold">{{ $upcomingCompetitions }}</div>
+                            <div class="small text-muted">今年度の大会</div>
+                            <div class="fs-4 fw-bold">{{ $year_comps }}</div>
                         </div>
                     </div>
                     <a href="{{ route('competitions.show') }}" class="stretched-link"></a>

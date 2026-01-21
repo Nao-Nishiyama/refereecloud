@@ -28,7 +28,7 @@
             <td>{{ $competition->name }}</td>
             <td>{{ $competition->type->name }}</td>
             <td>{{ $competition->city }}</td>
-            <td>{{ $competition->venue }}</td>
+            <td>{{ \Illuminate\Support\Str::limit($competition->venue, 10) }}</td>
             <td>
               {{ \Carbon\Carbon::parse($competition->start_day)->format('n/j') }}
               〜
