@@ -149,11 +149,9 @@
           <tr>
               <th>資格</th>
               <th>氏名</th>
+              <th>データ</th>
               <th>詳細</th>
               <th></th>
-              {{-- <th></th> --}}
-          </tr>
-          <tr>
           </tr>
         </thead>
         <tbody>
@@ -179,6 +177,11 @@
           <tr @if($isTrashed) class="text-muted" @endif>
               <td>{{ $r->license->name }}</td>
               <td>{{ $r->surname_kanji }} {{ $r->name_kanji }}</td>
+              <td>
+                <a href="{{ route('admin.referees.edit', $r->id)}}">
+                  <i class="fa-regular fa-address-card"></i>
+                </a>
+              </td>
 
               {{-- ▼ 詳細（今年の報告があればリンク、なければ表示） --}}
             <td>

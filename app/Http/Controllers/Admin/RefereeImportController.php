@@ -99,6 +99,7 @@ class RefereeImportController extends Controller
             'surname_kana'        => 'surname_kana',
             'name_kana'           => 'name_kana',
             'registration_number' => 'registration_number',
+            'email' => 'email',
             'prefecture_id'       => 'prefecture_id',
             'organization_id'     => 'organization_id',
             'license_id'          => 'license_id',

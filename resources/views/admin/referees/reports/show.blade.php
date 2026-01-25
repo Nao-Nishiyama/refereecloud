@@ -87,8 +87,8 @@
           @endcan
       </div>
   </div>
-
-    {{$year}}年度 活動報告一覧
+    <br>
+    <h5>{{$year}}年度 活動報告一覧</h5>
     <hr>
 
     <table class="table table-sm align-middle text-center">
@@ -185,7 +185,6 @@
                           <button class="btn btn-sm btn-outline-danger">抹消</button>
                         </form>
                       @endcan
-
                     @else
                       {{-- 承認済みは何も出さない --}}
                       <span class="text-muted">-</span>

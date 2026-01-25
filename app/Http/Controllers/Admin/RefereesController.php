@@ -194,7 +194,6 @@ class RefereesController extends Controller
 
     public function store(Request $request)
     {
-        // バリデーション（登録自体の条件）
         $v = $request->validate([
             'surname_kanji' => ['required','string','max:50'],
             'name_kanji'    => ['required','string','max:50'],
@@ -351,9 +350,12 @@ class RefereesController extends Controller
             return back()->withErrors(['user_id' => 'このユーザーは既に別のレフェリーに紐づいています。']);
         }
 
-        $referee = $this->referee->findOrFail($id);
-        $referee->user_id = $request->user_id;
-        $referee->update();
+        $referee = Referee::findOrFail($id);
+        $user = User::findOrFail($request->user_id);
+
+        $referee->user_id = $user->id;
+        $referee->email = $user->email;   // ★ user.email で上書き
+        $referee->save();
 
         return back()->with('status', 'ユーザーをレフェリーに紐づけました。');
     }
@@ -366,8 +368,8 @@ class RefereesController extends Controller
         $referee->user->update();
 
         $referee->user_id = null;
-        $referee->update();
-
+        $referee->email = null;
+        $referee->save();
 
         return back()->with('status', '紐づけを解除しました。');
     }
