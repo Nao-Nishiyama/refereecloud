@@ -23,7 +23,6 @@ return new class extends Migration
             $table->string('surname_kana', 50)->nullable();
             $table->string('name_kana', 50)->nullable();
             $table->string('registration_number', 50)->unique()->nullable();
-            $table->string('registration_number', 50)->unique()->nullable();
             $table->foreignId('prefecture_id')->nullable()
                 ->constrained('prefectures')->nullOnDelete();
             $table->foreignId('organization_id')->nullable()
