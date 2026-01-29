@@ -210,6 +210,7 @@
 
     <div class="text-end mt-3">
       <button class="btn btn-primary">保存</button>
+      <a href="{{route('admin.nominations.capacities.show')}}" class="btn btn-dark">戻る</a>
     </div>
   </form>
 </div>

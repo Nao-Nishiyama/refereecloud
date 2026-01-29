@@ -9,7 +9,17 @@
             <p class="text-dark ms-5">
                     開催地：{{ $competition->city }}<br>
                     会場：{{ $competition->venue }}<br>
-                    募集日程：{{ \Carbon\Carbon::parse($competition->start_day)->format('n/j') }}〜{{ \Carbon\Carbon::parse($competition->end_day)->format('n/j') }}<br>
+                    募集日程：
+                    @php
+                        $start = \Carbon\Carbon::parse($competition->start_day);
+                        $end   = \Carbon\Carbon::parse($competition->end_day);
+                    @endphp
+
+                    {{ $start->format('Y年n月j日') }}（{{ $start->isoFormat('dd') }}）
+                    @if (!$start->isSameDay($end))〜
+                    {{ $end->format('n月j日') }}（{{ $end->isoFormat('ddd') }}）
+                    @endif
+                    <br>
                     締切：{{ \Carbon\Carbon::parse($competition->application_deadline)->format('n/j') }} <br>
                     対象：
                     @foreach ($competition->competitionLicense as $competition_license)
@@ -114,43 +124,6 @@
                 @endforelse
                 </div>
 
-                {{-- <table class="table">
-                    <thead>
-                        <tr><th>役職</th><th>募集日</th><th>資格</th><th></th></tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($eligibleCells as $row)
-                        @php
-                            $labels = array_filter([
-                            !empty($row['license_names'])  ? implode(', ', $row['license_names']) : null,
-                            !empty($row['category_names']) ? implode(', ', $row['category_names']) : null,
-                            ]);
-                            $isApplied = !empty($appliedNominationIds[$row['nomination_id'] ?? 0]);
-                        @endphp
-                        <tr>
-                            <td>{{ $row['official'] }}</td>
-                            <td>{{ \Carbon\Carbon::parse($row['date'])->format('Y/m/d') }}</td>
-                            <td>{{ implode(' / ', $labels) ?: '-' }}</td>
-                            <td>
-                                @if ($isClosed)
-                                    <span class="text-muted ms-2">受付終了</span>
-                                @elseif ($isApplied)
-                                    <span class="badge bg-secondary ms-2">申込済</span>
-                                @else
-                                    <form method="POST" action="#" class="ms-2">
-                                    @csrf
-                                    <input type="hidden" name="nomination_id" value="{{ $row['nomination_id'] }}">
-                                    <button type="submit" class="btn btn-sm btn-primary">申込</button>
-                                    </form>
-                                @endif
-                            </td>
-                        </tr>
-                        @empty
-                        <tr><td colspan="3" class="text-muted">あなたが対象の募集はありません。</td></tr>
-                        @endforelse
-                    </tbody>
-                </table> --}}
-
                 {{-- ついでに締切表示（必要なら） --}}
                 @isset($isClosed)
                 @if($isClosed)
@@ -159,7 +132,10 @@
                 @endisset
 
                 </div>
-            </div>            
+            </div>
+            <div class="text-center">
+                <a href="{{route('competitions.show')}}" class="btn btn-dark px-4">戻る</a>
+            </div>
         </div>
     </div>
 @endsection

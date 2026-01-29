@@ -42,26 +42,6 @@ class ApplicationsController extends Controller
         $fyStart    = Carbon::create($fiscalYear,     4,  1)->startOfDay();
         $fyEnd      = Carbon::create($fiscalYear + 1, 3, 31)->endOfDay();
 
-        // $appCountThisFY = Application::query()
-        //     ->whereHas('nomination.competition', function ($q) use ($fyStart, $fyEnd) {
-        //         $q->whereBetween('start_day', [$fyStart, $fyEnd]);
-        //     })
-        //     ->count();
-
-        // $applied_competitions = Competition::query()
-        //     ->whereBetween('start_day', [$fyStart, $fyEnd])
-        //     ->withCount([
-        //         'nominations as applications_count' => function ($q) {
-        //             $q->withCount('applications');
-        //         },
-        //     ])
-        //     ->get();
-        
-        // $appliedCompetitions = Competition::query()
-        //     ->whereBetween('start_day', [$fyStart, $fyEnd])
-        //     ->withCount('applications')
-        //     ->get();
-
         $comps = Competition::whereBetween('start_day', [$fyStart, $fyEnd])
             ->withCount(['applications as applicants_count' => fn($q) => $q
             ->select(DB::raw('COUNT(DISTINCT user_id)'))])

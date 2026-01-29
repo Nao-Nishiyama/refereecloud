@@ -43,10 +43,9 @@ class CompetitionsController extends Controller
 
     public function show()
     {
-        $competitions = $this->competition->all();
-        //->paginate(5)
-        $all = Competition::withTrashed()->get();
-        $trashed = Competition::onlyTrashed()->get();
+        $competitions = $this->competition->orderBy('start_day', 'desc')->get();
+        $all = Competition::withTrashed()->orderBy('start_day', 'desc')->get();
+        $trashed = Competition::onlyTrashed()->orderBy('start_day', 'desc')->get();
 
         return view('admin.competitions.show', compact('competitions', 'all', 'trashed'));
     }
@@ -298,17 +297,85 @@ class CompetitionsController extends Controller
     }
 
 
+    // public function showDetail($id)
+    // {
+    //     $competition = $this->competition->findOrFail($id);
+    //     $referees = $this->referee->where('organization_id', Auth::user()->referee->organization_id)->orderBy('license_id')->orderBy('surname_kana')->get();
+
+    //     $period = CarbonPeriod::create($competition->start_day, $competition->end_day);
+    //     $dates = collect($period)->map(function (Carbon $date) {
+    //         return $date;
+    //     });
+        
+    //     // chief の所属 org を取得（パターンB）
+    //     $chiefOrgId = optional(
+    //         $this->referee->where('user_id', Auth::user()->id)->first()
+    //     )->organization_id;
+
+    //     abort_if(!$chiefOrgId, 403, '審判長の所属が未設定です。');
+
+    //     $competition->load([
+    //         'type',
+    //         'nominations.day',
+    //         'nominations.official',
+    //         'nominations.referees' => fn($q)=>$q->wherePivot('status','assigned'),
+    //     ]);
+
+    //     // 事前選択: nomination_id => [referee_id...]
+    //     $preAssigned = [];
+    //     foreach ($competition->nominations as $n) {
+    //         $preAssigned[$n->id] = $n->referees->pluck('id')->values()->all();
+    //     }
+
+    //     // nominationごとの候補者リストを作る
+    //     $candidatesByNomination = [];
+
+    //     foreach ($competition->nominations as $n) {
+    //             if (Auth::user()->role_id === 1 || Auth::user()->role_id === 2) {
+    //                 $f = (array)($n->filters_json ?? []);
+    //                 $licenseIds  = array_map('intval', (array)($f['license_ids']  ?? []));
+    //                 $categoryIds = array_map('intval', (array)($f['category_ids'] ?? []));
+
+    //                 $candidatesByNomination[$n->id] = $this->referee->query()
+    //                     ->eligibleFor($licenseIds, $categoryIds)
+    //                     ->orderBy('id')
+    //                     ->get();
+    //             } else {
+    //             $f = (array)($n->filters_json ?? []);
+    //             $licenseIds  = array_map('intval', (array)($f['license_ids']  ?? []));
+    //             $categoryIds = array_map('intval', (array)($f['category_ids'] ?? []));
+
+    //             // filters が空でも「自団体」のみは必ず担保
+    //             $candidatesByNomination[$n->id] = $this->referee->query()
+    //                 ->eligibleFor($licenseIds, $categoryIds)          // license/category 条件
+    //                 ->where('organization_id', (int)$chiefOrgId)      // 自団体のみ
+    //                 ->with('organization:id,short_name')
+    //                 ->orderBy('id')
+    //                 ->get();
+    //             }
+    //     }
+    //     // 並び順：日付→役職
+    //     $nominations = $competition->nominations->sortBy([
+    //         ['day.date','asc'],
+    //         ['official.id','asc'],
+    //     ])->values();
+
+    //     $myOrgId = optional(Auth::user()->referee)->organization_id ?? 0;
+
+    //     // 画面に出す nomination のみに絞って、自団体の枠数を取得（soft deleteは自動で除外）
+    //     $capByNomination = NominationCapacity::where('organization_id', $myOrgId)
+    //         ->whereIn('nomination_id', $nominations->pluck('id'))
+    //         ->pluck('capacity', 'nomination_id');   // [nomination_id => capacity]
+            
+    //     return view('admin.competitions.detail.show', compact(
+    //         'competition', 'nominations', 'preAssigned', 'candidatesByNomination', 'capByNomination', 'referees'
+    //     ));
+    // }
+
     public function showDetail($id)
     {
         $competition = $this->competition->findOrFail($id);
-        $referees = $this->referee->where('organization_id', Auth::user()->referee->organization_id)->orderBy('license_id')->orderBy('surname_kana')->get();
 
-        $period = CarbonPeriod::create($competition->start_day, $competition->end_day);
-        $dates = collect($period)->map(function (Carbon $date) {
-            return $date;
-        });
-        
-        // chief の所属 org を取得（パターンB）
         $chiefOrgId = optional(
             $this->referee->where('user_id', Auth::user()->id)->first()
         )->organization_id;
@@ -322,54 +389,52 @@ class CompetitionsController extends Controller
             'nominations.referees' => fn($q)=>$q->wherePivot('status','assigned'),
         ]);
 
-        // 事前選択: nomination_id => [referee_id...]
-        $preAssigned = [];
-        foreach ($competition->nominations as $n) {
-            $preAssigned[$n->id] = $n->referees->pluck('id')->values()->all();
-        }
-
-        // nominationごとの候補者リストを作る
-        $candidatesByNomination = [];
-
-        foreach ($competition->nominations as $n) {
-                if (Auth::user()->role_id === 1 || Auth::user()->role_id === 2) {
-                    $f = (array)($n->filters_json ?? []);
-                    $licenseIds  = array_map('intval', (array)($f['license_ids']  ?? []));
-                    $categoryIds = array_map('intval', (array)($f['category_ids'] ?? []));
-
-                    $candidatesByNomination[$n->id] = $this->referee->query()
-                        ->eligibleFor($licenseIds, $categoryIds)
-                        ->orderBy('id')
-                        ->get();
-                } else {
-                $f = (array)($n->filters_json ?? []);
-                $licenseIds  = array_map('intval', (array)($f['license_ids']  ?? []));
-                $categoryIds = array_map('intval', (array)($f['category_ids'] ?? []));
-
-                // filters が空でも「自団体」のみは必ず担保
-                $candidatesByNomination[$n->id] = $this->referee->query()
-                    ->eligibleFor($licenseIds, $categoryIds)          // license/category 条件
-                    ->where('organization_id', (int)$chiefOrgId)      // 自団体のみ
-                    ->with('organization:id,short_name')
-                    ->orderBy('id')
-                    ->get();
-                }
-        }
         // 並び順：日付→役職
         $nominations = $competition->nominations->sortBy([
             ['day.date','asc'],
             ['official.id','asc'],
         ])->values();
 
-        $myOrgId = optional(Auth::user()->referee)->organization_id ?? 0;
+        // 事前選択: nomination_id => [referee_id...]
+        $preAssigned = [];
+        foreach ($nominations as $n) {
+            $preAssigned[$n->id] = $n->referees->pluck('id')->values()->all();
+        }
 
-        // 画面に出す nomination のみに絞って、自団体の枠数を取得（soft deleteは自動で除外）
-        $capByNomination = NominationCapacity::where('organization_id', $myOrgId)
+        // nominationごとの候補者リスト
+        $candidatesByNomination = [];
+        foreach ($nominations as $n) {
+            $f = (array)($n->filters_json ?? []);
+            $licenseIds  = array_map('intval', (array)($f['license_ids']  ?? []));
+            $categoryIds = array_map('intval', (array)($f['category_ids'] ?? []));
+
+            $q = $this->referee->query()
+                ->eligibleFor($licenseIds, $categoryIds)
+                ->with('organization:id,short_name')
+                ->orderBy('license_id');
+
+            if (!(Auth::user()->role_id === 1 || Auth::user()->role_id === 2)) {
+                $q->where('organization_id', (int)$chiefOrgId);
+            }
+
+            $candidatesByNomination[$n->id] = $q->get();
+        }
+
+        $myOrgId = (int)(optional(Auth::user()->referee)->organization_id ?? 0);
+
+        $capByNomination = NominationCapacity::query()
+            ->where('organization_id', $myOrgId)
             ->whereIn('nomination_id', $nominations->pluck('id'))
-            ->pluck('capacity', 'nomination_id');   // [nomination_id => capacity]
-            
+            ->pluck('capacity', 'nomination_id')
+            ->map(fn($v) => (int)$v)
+            ->all(); // ←配列化
+
         return view('admin.competitions.detail.show', compact(
-            'competition', 'nominations', 'preAssigned', 'candidatesByNomination', 'capByNomination'
+            'competition',
+            'nominations',
+            'preAssigned',
+            'candidatesByNomination',
+            'capByNomination'
         ));
     }
 

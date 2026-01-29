@@ -8,70 +8,112 @@
     $user = Auth::user();
 @endphp
 
-<div class="row gx-5 d-flex justify-content-center table-responsive">
-  <table class="table align-middle table-hover bg-white border text-secondary w-75 text-center shadow">
-    <thead class="small table-success text-secondary">
-      <tr>
+<div class="container">
+  <div class="row d-flex justify-content-center table-responsive">
+    <table class="table align-middle table-hover bg-white border text-secondary text-center shadow w-100">
+      <thead class="small table-success text-secondary">
+        <tr>
           <th>大会名</th>
-          <th>種別</th>
-          <th>開催地</th>
-          <th>会場</th>
-          <th>募集日程</th>
-          <th>締切</th>
-          <th>申込</th>
-      </tr>
-    </thead>
-    <tbody>
-      @if ($all_competitions->isNotEmpty())
-        @foreach ($all_competitions as $competition)
-          <tr>
-            <td>{{ $competition->name }}</td>
-            <td>{{ $competition->type->name }}</td>
-            <td>{{ $competition->city }}</td>
-            <td>{{ \Illuminate\Support\Str::limit($competition->venue, 10) }}</td>
-            <td>
-              {{ \Carbon\Carbon::parse($competition->start_day)->format('n/j') }}
-              〜
-              {{ \Carbon\Carbon::parse($competition->end_day)->format('n/j') }}
-            </td>
-            <td>{{ \Carbon\Carbon::parse($competition->application_deadline)->format('n/j') }}</td>
-            <td>
+          <th style="width:90px;">種別</th>
+          <th style="width:240px;">開催地 / 会場</th>
+          <th class="text-nowrap" style="width:150px;">募集日程</th>
+          <th class="text-nowrap" style="width:90px;">締切</th>
+          <th class="text-center" style="width:80px;">申込</th>
+        </tr>
+      </thead>
+
+      <tbody class="text-start">
+        @if ($all_competitions->isNotEmpty())
+          @foreach ($all_competitions as $competition)
             @php
-                // 受付締切（null かもしれない想定）
-                $deadline = $competition->application_deadline
-                ? \Carbon\Carbon::parse($competition->application_deadline)
-                : null;
+              $start = \Carbon\Carbon::parse($competition->start_day);
+              $end   = \Carbon\Carbon::parse($competition->end_day);
 
-                // 当日いっぱい受け付けたい場合は endOfDay() を付ける
-                $isClosed = $deadline ? $deadline->endOfDay()->isPast() : false;
+              $deadline = $competition->application_deadline
+                  ? \Carbon\Carbon::parse($competition->application_deadline)->endOfDay()
+                  : null;
 
-                // 対象者かどうか（コントローラで作った eligibleMap を使用）
-                $isEligible = !empty($eligibleMap[$competition->id]);
+              $isClosed = $deadline ? $deadline->isPast() : false;
+
+              // 対象者かどうか（コントローラで作った eligibleMap）
+              $isEligible = !empty($eligibleMap[$competition->id]);
+
+              // 申込済み判定（※本当はコントローラでまとめて渡すのがベター）
+              $applied = false;
+              if ($isEligible && !$isClosed) {
+                  $applied = $user->applications()
+                      ->whereHas('nomination', fn($q) => $q->where('competition_id', $competition->id))
+                      ->exists();
+              }
             @endphp
 
-            @if ($isClosed)
-                <a href="{{ route('competition.apply', $competition->id) }}" class="text-muted text-decoration-none">詳細</a>
-            @elseif ($isEligible)
-                @php
-                $applied = $user->applications()
-                    ->whereHas('nomination', fn($q) => $q->where('competition_id', $competition->id))
-                    ->exists();
-                @endphp
+            <tr>
+              {{-- 大会名（長い場合は省略＋title） --}}
+              <td style="max-width:280px;">
+                <span class="d-inline-block text-truncate" style="max-width:280px;" title="{{ $competition->name }}">
+                  {{ $competition->name }}
+                </span>
+              </td>
 
-                @if ($applied)
-                  申込済
+              {{-- 種別：バッジでスッキリ --}}
+              <td class="text-center">
+                <span class="badge bg-success-subtle text-success">
+                  {{ $competition->type->name }}
+                </span>
+              </td>
+
+              {{-- 開催地 / 会場：1列に統合して情報密度を整理 --}}
+              <td>
+                <div class="fw-semibold">
+                  <span title="{{ $competition->venue }}">
+                    {{ \Illuminate\Support\Str::limit($competition->venue, 16) }}
+                  </span>
+                </div>
+                <div class="small text-muted">{{ $competition->city }}</div>
+              </td>
+
+              {{-- 募集日程：同日なら1つ、違うなら範囲（年は開始日のみ） --}}
+              <td class="text-nowrap">
+                {{ $start->format('y/n/j') }}
+                @if (!$start->isSameDay($end))
+                  –
+                  {{ $end->format('n/j') }}
                 @endif
-                <a href="{{ route('competition.apply', $competition->id) }}" class="text-danger text-decoration-none">申込</a>
-            @else
-                <span class="text-muted">対象外</span>
-            @endif
-            </td>
-          </tr>
-        @endforeach
-      @else
-        <tr><td colspan="7">募集なし</td></tr>
-      @endif
-    </tbody>
-  </table>
+              </td>
+
+              {{-- 締切 --}}
+              <td class="text-nowrap">
+                {{ $deadline ? $deadline->format('n/j') : '-' }}
+              </td>
+
+              {{-- 申込 --}}
+              <td class="text-center text-nowrap">
+                @if ($isClosed)
+                  <a href="{{ route('competition.apply', $competition->id) }}" class="text-muted text-decoration-none">
+                    詳細
+                  </a>
+                @elseif ($isEligible)
+                  @if ($applied)
+                    <a href="{{ route('competition.apply', $competition->id) }}" class="text-secondary text-decoration-none">
+                      申込済
+                    </a>
+                  @else
+                    <a href="{{ route('competition.apply', $competition->id) }}" class="text-danger text-decoration-none">
+                      申込
+                    </a>
+                  @endif
+                @else
+                  <span class="text-muted">対象外</span>
+                @endif
+              </td>
+            </tr>
+          @endforeach
+        @else
+          <tr><td colspan="6" class="text-center">募集なし</td></tr>
+        @endif
+      </tbody>
+    </table>
+  </div>
 </div>
+
 @endsection

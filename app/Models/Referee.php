@@ -61,17 +61,29 @@ class Referee extends Model
         $licenseIds  = array_values(array_filter(array_map('intval', $licenseIds)));
         $categoryIds = array_values(array_filter(array_map('intval', $categoryIds)));
 
-        return $q->when(!empty($licenseIds),  fn($qq)=>$qq->whereIn('license_id', $licenseIds))
-                ->when(!empty($categoryIds), function ($qq) use ($categoryIds) {
-                    $qq->where(function ($w) use ($categoryIds) {
-                        // referees.category_id（FK）がある場合
-                        if (Schema::hasColumn('referees','category_id')) {
-                            $w->orWhereIn('category_id', $categoryIds);
-                        }
-                        // 多対多
-                        $w->orWhereHas('categories', fn($r)=>$r->whereIn('categories.id', $categoryIds));
-                    });
+        // 両方空なら「制限なし（全員OK）」にする
+        if (empty($licenseIds) && empty($categoryIds)) {
+            return $q;
+        }
+
+        return $q->where(function ($qq) use ($licenseIds, $categoryIds) {
+
+            // license 条件
+            if (!empty($licenseIds)) {
+                $qq->whereIn('license_id', $licenseIds);
+            }
+
+            // category 条件（多対多）
+            if (!empty($categoryIds)) {
+                // license条件が既にあるなら OR でつなぐ、無いなら whereHas
+                $method = !empty($licenseIds) ? 'orWhereHas' : 'whereHas';
+
+                $qq->{$method}('categories', function ($cq) use ($categoryIds) {
+                    // categories テーブルの主キーが id の想定
+                    $cq->whereIn('categories.id', $categoryIds);
                 });
+            }
+        });
     }
 
     public function approval()

@@ -170,9 +170,10 @@
                         @enderror
                     </div>
                     <button type="submit" class="btn btn-primary px-5">保存する</button>
+                    <a href="{{route('profile.show', $user->referee->id)}}" class="btn btn-dark">戻る</a>
                 </form>
             @else
-                {{ __('レフェリー情報と連携する')}}
+                {{ __('レフェリーデータベースと未連携')}}
             @endif
         </div>
     </div>

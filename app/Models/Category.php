@@ -9,9 +9,9 @@ class Category extends Model
 
     protected $fillable = ['category_id'];
 
-    public function users()
+    public function refees()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(Referee::class);
     }
 
     public function nominations()

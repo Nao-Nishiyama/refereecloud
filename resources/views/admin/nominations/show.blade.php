@@ -90,7 +90,7 @@
     </div>
   </div>
 
-  <h5 class="mb-3 py-3">2025年度 大会の団体別割当一覧</h5>
+  <h5 class="mb-3 py-3">{{$y-4}}年度 大会の団体別割当一覧</h5>
 
   @if(session('status'))
     <div class="alert alert-info">{{ session('status') }}</div>

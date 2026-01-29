@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Nexus Control')
+@section('title', 'レフェリー情報')
 
 @section('content')
     <div class="container">
@@ -15,8 +15,8 @@
                             <i class="fa-solid fa-calendar-check fa-lg"></i>
                         </div>
                         <div>
-                            <div class="small text-muted">今年度の大会</div>
-                            <div class="fs-4 fw-bold">{{ $year_comps }}</div>
+                            <div class="small text-muted">今後の大会</div>
+                            <div class="fs-4 fw-bold">{{ $upcomingCompetitions }}</div>
                         </div>
                     </div>
                     <a href="{{ route('competitions.show') }}" class="stretched-link"></a>
@@ -283,6 +283,20 @@
                             <a href="{{ route('admin.referees.database') }}" class="stretched-link"></a>
                         </div>
                     </div>
+                    <div class="col-12 col-md-4">
+                        <div class="card card-action shadow-sm">
+                            <div class="card-body d-flex align-items-center gap-3 ">
+                                <div class="action-icon">
+                                    <i class="fa-solid fa-cloud-arrow-down"></i>
+                                </div>
+                                <div>
+                                    <div class="small text-muted">CSV ダウンロード</div>
+                                    <div class="fs-6">審判員データのダウンロード</div>
+                                </div>
+                            </div>
+                            <a href="{{ route('admin.referees.export.show') }}" class="stretched-link"></a>
+                        </div>
+                    </div>
                 @endcanany
             </div>
 
@@ -302,39 +316,76 @@
                     <thead class="table-light">
                         <tr>
                             <th>大会名</th>
-                            <th>種別</th>
-                            <th>期間</th>
-                            <th>開催地</th>
+                            <th style="width:90px;">種別</th>
+                            <th class="text-nowrap" style="width:220px;">期間</th>
+                            <th style="width:140px;">開催地</th>
                             @canany(['admin','committee','chief'])
-                                <th>管理</th>
+                                <th class="text-center" style="width:80px;">管理</th>
                             @endcanany
                         </tr>
                     </thead>
+
                     <tbody>
                         @forelse($latestCompetitions as $c)
+                            @php
+                                $start = \Carbon\Carbon::parse($c->start_day);
+                                $end   = \Carbon\Carbon::parse($c->end_day);
+                            @endphp
+
                             <tr>
-                                <td>{{ $c->name }}</td>
-                                <td>{{ optional($c->type)->name ?? '-' }}</td>
-                                <td>
-                                    {{ \Carbon\Carbon::parse($c->start_day)->format('n/j') }}
-                                    〜
-                                    {{ \Carbon\Carbon::parse($c->end_day)->format('n/j') }}
+                                {{-- 大会名：省略＋title --}}
+                                <td style="max-width:320px;">
+                                    <span class="d-inline-block text-truncate" style="max-width:320px;" title="{{ $c->name }}">
+                                        {{ $c->name }}
+                                    </span>
                                 </td>
+
+                                {{-- 種別：バッジ --}}
+                                <td>
+                                    @if(optional($c->type)->name)
+                                        <span class="badge bg-success-subtle text-success">
+                                            {{ $c->type->name }}
+                                        </span>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+
+                                {{-- 期間：丁寧（曜日）＋同日なら1日表示 --}}
+                                <td class="text-nowrap">
+                                    {{ $start->format('Y年n月j日') }}（{{ $start->isoFormat('dd') }}）
+                                    @if (!$start->isSameDay($end))
+                                        〜
+                                        {{ $end->format('n月j日') }}（{{ $end->isoFormat('dd') }}）
+                                    @endif
+                                </td>
+
+                                {{-- 開催地 --}}
                                 <td>{{ $c->city }}</td>
+
+                                {{-- 管理 --}}
                                 @canany(['admin','committee','chief'])
-                                    <td>
-                                        <a href="{{ route('admin.competitions.edit', $c->id) }}" class="btn btn-sm btn-outline-primary">編集</a>
+                                    <td class="text-center">
+                                        <a href="{{ route('admin.competitions.edit', $c->id) }}"
+                                        class="btn btn-sm btn-outline-primary"
+                                        title="編集">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </a>
                                     </td>
                                 @endcanany
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="text-muted">直近の大会はありません。</td>
+                                <td colspan="@canany(['admin','committee','chief']) 5 @else 4 @endcanany"
+                                    class="text-center text-muted">
+                                    直近の大会はありません。
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
+
         </div>
     </div>
 

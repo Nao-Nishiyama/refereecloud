@@ -107,7 +107,7 @@ class NominationCapacityController extends Controller
             'year','from','to','competitions','organizations','caps'
         ));
     }
-
+    
     /** 一括保存（年度パラメータを持ち回す） */
     public function bulkUpdate(Request $request)
     {

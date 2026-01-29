@@ -75,10 +75,10 @@
                 <span>{{ $lic->name }}</span>
                 <span>{{ $countsByLic[$lic->id] ?? 0 }}</span>
                 @canany(['admin','committee'])
-                    <a href="{{ route('admin.referees.show', ['license' => $lic->id]) }}" class="stretched-link"></a>
+                    <a href="{{ request()->fullUrlWithQuery(['license' => $lic->id, 'page' => 1]) }}" class="stretched-link"></a>
                 @endcanany
                 @canany(['chief'])
-                    <a href="{{ route('admin.referees.showForChief', ['organization' => optional(Auth::user()->referee)->organization_id,'license' => $lic->id]) }}" class="stretched-link"></a>
+                    <a href="{{ request()->fullUrlWithQuery(['organization' => optional(Auth::user()->referee)->organization_id, 'license' => $lic->id, 'page' => 1 ]) }}" class="stretched-link"></a>
                 @endcanany
                 </li>
             @endforeach
@@ -98,8 +98,7 @@
                 <li class="list-group-item d-flex justify-content-between align-items-center position-relative @class(['active' => $orgId === $org->id])">
                 <span>{{ $org->short_name }}</span>
                 <span>{{ $countsByOrg[$org->id] ?? 0 }}</span>
-                <a href="{{ route('admin.referees.show', ['organization' => $org->id]) }}"
-                    class="stretched-link text-decoration-none"></a>
+                    <a href="{{ request()->fullUrlWithQuery(['organization' => $org->id, 'page' => 1]) }}" class="stretched-link text-decoration-none"></a>
                 </li>
             @endforeach
             </ul>

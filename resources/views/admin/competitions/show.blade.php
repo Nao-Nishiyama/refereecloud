@@ -11,19 +11,18 @@
                 <tr>
                     <th>大会名</th>
                     <th>種別</th>
-                    <th>開催地</th>
-                    <th>会場</th>
+                    <th>開催地・会場</th>
                     <th>募集日程</th>
                     <th>締切</th>
-                    <th>レフェリー</th>
-                    <th>編集</th>
-                    <th>状態</th>
+                    <th class="text-center" style="width:60px">レフ</th>
+                    <th class="text-center" style="width:60px">編集</th>
+                    <th class="text-center" style="width:60px">状態</th>
                     @if (Auth::user()->role_id === 1)
                         <th>完全消去</th>
                     @endif
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="text-start">
                 @if (Auth::user()->role_id === 1)
                     @php
                         $competitions = $all;
@@ -32,27 +31,42 @@
                 @if($competitions)
                     @foreach ($competitions as $competition)
                         <tr>
-                            <td>{{ $competition->name }}</td>
-                            <td>{{ $competition->type->name }}</td>
-                            <td>{{ $competition->city }}</td>
-                            <td>{{ $competition->venue }}</td>
-                            <td>
-                                {{ \Carbon\Carbon::parse($competition->start_day)->format('n/j') }}
-                                〜
-                                {{ \Carbon\Carbon::parse($competition->end_day)->format('n/j') }}
+                            <td style="max-width:240px">
+                                <span class="d-inline-block text-truncate" style="max-width:240px"
+                                    title="{{ $competition->name }}">
+                                    {{ $competition->name }}
+                                </span>
                             </td>
-                            <td>{{ \Carbon\Carbon::parse($competition->application_deadline)->format('n/j') }}</td>
                             <td>
+                                <span class="badge bg-success-subtle text-success">
+                                    {{ $competition->type->name }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="fw-semibold">{{ $competition->venue }}</div>
+                                <div class="small text-muted">{{ $competition->city }}</div>
+                            </td>
+                            <td class="text-nowrap">
+                                @if ($competition->start_day === $competition->end_day)
+                                    {{ \Carbon\Carbon::parse($competition->start_day)->format('y/n/j') }}
+                                @else
+                                    {{ \Carbon\Carbon::parse($competition->start_day)->format('y/n/j') }}
+                                    –
+                                    {{ \Carbon\Carbon::parse($competition->end_day)->format('n/j') }}
+                                @endif
+                            </td>
+                            <td class="text-center">{{ \Carbon\Carbon::parse($competition->application_deadline)->format('n/j') }}</td>
+                            <td class="text-center">
                                 <a href="{{route('admin.competitions.showdetail', $competition->id)}}">
                                     <i class="fa-solid fa-circle-info text-primary"></i>
                                 </a>
                             </td>
-                            <td>
+                            <td class="text-center">
                                 <a href="{{ route('admin.competitions.edit', $competition->id) }}">
                                     <i class="fa-solid fa-pen-to-square text-danger"></i>
                                 </a>
                             </td>
-                            <td>
+                            <td class="text-center">
                                 @if ($competition->deleted_at == NULL) 
                                     <form method="POST"
                                             action="{{ route('admin.competitions.destroy', $competition->id) }}"
@@ -74,7 +88,7 @@
                                 @endif
                             </td>
                             @if (Auth::user()->role_id === 1)
-                            <td>
+                            <td class="text-center">
                                     <form method="POST" action="{{ route('admin.competitions.force', $competition->id) }}" class="d-inline"
                                         onsubmit="return confirm('完全に削除します。よろしいですか？')">
                                     @csrf @method('DELETE')

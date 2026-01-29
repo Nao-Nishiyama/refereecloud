@@ -107,6 +107,7 @@
                 </div>
                 <div class="text-end">
                     <a href="{{ route('profile.edit') }}" class="btn btn-outline-secondary">{{__('編集')}}</a>
+                    <a href="{{route('index')}}" class="btn btn-dark ms-2" style="width: 10%">戻る</a>
                 </div>
             @else
                 {{__('データベース未連携')}}

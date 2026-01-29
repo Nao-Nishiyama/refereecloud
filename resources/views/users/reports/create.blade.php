@@ -123,7 +123,10 @@
         </div>
 
         <div class="row justify-content-center">
+        <div class="text-center">
             <button type="submit" class="btn btn-outline-success text-center mt-3" style="width: 20%">保存</button>
+            <a href="{{route('reports.show')}}" class="btn btn-dark px-4 mt-3 ms-2" style="width: 20%">戻る</a>
+        </div>
         </div>
     </form>
 @endsection

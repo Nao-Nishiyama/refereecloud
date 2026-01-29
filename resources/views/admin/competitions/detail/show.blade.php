@@ -106,6 +106,7 @@
       
       <div class="text-center">
         <button type="submit" class="btn btn-primary px-4">保存</button>
+        <a href="{{route('admin.competitions.show')}}" class="btn btn-dark px-4">戻る</a>
       </div>
 
     </form>

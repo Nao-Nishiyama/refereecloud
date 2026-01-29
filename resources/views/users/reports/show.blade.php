@@ -66,5 +66,8 @@
                 @endforeach
             </tbody>
         </table>
+        <div class="text-center">
+            <a href="{{route('index')}}" class="btn btn-dark px-4 mt-3 ms-2" style="width: 10%">戻る</a>
+        </div>
     </div>
 @endsection

@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\RefereesController;
 use App\Http\Controllers\Admin\ApplicationsController;
 use App\Http\Controllers\Admin\CompetitionsController;
 use App\Http\Controllers\NominationCapacityController;
+use App\Http\Controllers\Admin\RefereeExportController;
 use App\Http\Controllers\Admin\RefereeImportController;
 use App\Http\Controllers\Admin\RefereeReportsController;
 use App\Http\Controllers\Admin\RefereeApprovalsController;
@@ -38,12 +39,18 @@ Route::group(['middleware' => 'auth'], function(){
         Route::post('competitions/import', [CompetitionImportController::class, 'store'])
             ->name('competitions.import.store');
         
-            Route::get('/referees/import', [RefereeImportController::class, 'show'])
-            ->name('referees.import.show');
+        Route::get('/referees/import', [RefereeImportController::class, 'show'])
+        ->name('referees.import.show');
         Route::get('/referees/database', [RefereeImportController::class, 'database'])
             ->name('referees.database');
         Route::post('referees/import', [RefereeImportController::class, 'store'])
             ->name('referees.import.store');
+
+        // Export page
+        Route::get('/referees/export/show', [RefereeExportController::class, 'show'])
+            ->name('referees.export.show');
+        Route::post('/referees/export', [RefereeExportController::class, 'export'])
+            ->name('referees.export');
 
         Route::get('/referees', [RefereesController::class, 'index'])
             ->name('referees');
