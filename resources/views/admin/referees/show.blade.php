@@ -26,6 +26,8 @@
     // 抹消表示権限（Gateで判定。@can 使うなら下行は不要）
     $canViewTrashed = $canViewTrashed
         ?? \Illuminate\Support\Facades\Gate::allows('referees.viewTrashed');
+
+    
     @endphp
 
     @if ($allRefs->isNotEmpty())
@@ -60,8 +62,8 @@
             <h6 class="mt-4">資格</h6>
             <ul class="list-group">
                 <li class="list-group-item d-flex justify-content-between align-items-center position-relative @class(['active' => empty($licId)])">
-                    <span>すべて</span>
-                    <span>{{ $countsByLic->sum() }}</span>
+                    <span class="lic-name flex-grow-1">すべて</span>
+                    <span class="lic-count">{{ $countsByLic->sum() }}</span>
                     @canany(['admin','committee'])
                         <a href="{{ route('admin.referees.show') }}" class="stretched-link"></a>
                     @endcanany
@@ -70,18 +72,23 @@
                     @endcanany
                 </li>
 
-            @foreach ($lics as $lic)
-                <li class="list-group-item d-flex justify-content-between align-items-center position-relative @class(['active' => $licId === $lic->id])">
-                <span>{{ $lic->name }}</span>
-                <span>{{ $countsByLic[$lic->id] ?? 0 }}</span>
-                @canany(['admin','committee'])
-                    <a href="{{ request()->fullUrlWithQuery(['license' => $lic->id, 'page' => 1]) }}" class="stretched-link"></a>
-                @endcanany
-                @canany(['chief'])
-                    <a href="{{ request()->fullUrlWithQuery(['organization' => optional(Auth::user()->referee)->organization_id, 'license' => $lic->id, 'page' => 1 ]) }}" class="stretched-link"></a>
-                @endcanany
-                </li>
-            @endforeach
+                @foreach ($lics as $lic)
+                    <li class="list-group-item position-relative @class(['active' => $licId === $lic->id])">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="lic-name flex-grow-1">
+                        {{ $lic->name }}
+                        </span>
+                        <span class="lic-count">
+                        {{ $countsByLic[$lic->id] ?? 0 }}
+                        </span>
+                    </div>
+
+                    {{-- linkは今のままでOK --}}
+                    @canany(['admin','committee'])
+                        <a href="{{ request()->fullUrlWithQuery(['license' => $lic->id, 'page' => 1]) }}" class="stretched-link"></a>
+                    @endcanany
+                    </li>
+                @endforeach
             </ul>
         </div>
         @if (Auth::user()->role_id === 1 || Auth::user()->role_id === 2)
@@ -89,15 +96,15 @@
             <h6 class="mt-4">団体</h6>
             <ul class="list-group">
                 <li class="list-group-item d-flex justify-content-between align-items-center position-relative @class(['active' => empty($orgId)])">
-                    <span>すべて</span>
-                    <span>{{ $countsByOrg->sum() }}</span>
+                    <span class="lic-name flex-grow-1">すべて</span>
+                    <span class="lic-count">{{ $countsByOrg->sum() }}</span>
                     <a href="{{ route('admin.referees.show') }}" class="stretched-link text-decoration-none"></a>
                 </li>
 
             @foreach ($orgs as $org)
                 <li class="list-group-item d-flex justify-content-between align-items-center position-relative @class(['active' => $orgId === $org->id])">
-                <span>{{ $org->short_name }}</span>
-                <span>{{ $countsByOrg[$org->id] ?? 0 }}</span>
+                <span class="lic-name flex-grow-1">{{ $org->short_name }}</span>
+                <span class="lic-count">{{ $countsByOrg[$org->id] ?? 0 }}</span>
                     <a href="{{ request()->fullUrlWithQuery(['organization' => $org->id, 'page' => 1]) }}" class="stretched-link text-decoration-none"></a>
                 </li>
             @endforeach
@@ -185,5 +192,34 @@
                 </div>
             </div>
         @endif
+
+<style>
+.list-group-item { min-width: 0; }
+
+/* 文字は省略しない（必要なら改行OK） */
+.lic-name{
+  min-width: 0;
+  white-space: normal;   /* ←1行固定したいなら nowrap に */
+  overflow: hidden;
+}
+
+/* スマホだけ数字を下へ */
+@media (max-width: 576px){
+  .lic-count{
+    order: 2;
+    margin-left: 0 !important;
+    margin-top: .25rem;
+  }
+  .lic-name{
+    order: 1;
+    width: 100%;
+  }
+  .list-group-item .d-flex{
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+}
+
+</style>
 
 @endsection

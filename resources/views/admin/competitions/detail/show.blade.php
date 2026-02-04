@@ -3,11 +3,27 @@
 @section('title', 'Admin_Competition_Control')
 
 @section('content')
+@php
+  $user       = Auth::user();
+  $isAdmin    = ($user->role_id === 1);
+  $isCommittee= ($user->role_id === 2);
+  $myOrgId    = (int) optional($user->referee)->organization_id;
+
+  // 日付でグループ化
+  $grouped = $nominations->groupBy(fn($n) => optional($n->day?->date)->toDateString());
+
+  // 表示対象団体：admin/committee は全団体、chief は自団体のみ
+  $orgsForView = ($isAdmin || $isCommittee)
+      ? $organizations
+      : $organizations->where('id', $myOrgId);
+@endphp
+
 <div class="row gx-5 d-flex justify-content-center">
   <div class="col-md-8">
     <h2 class="text-dark">
-      {{ $competition->name }} - {{ $competition->type->name }}
+      {{ $competition->name }} - {{ optional($competition->type)->name }}
     </h2>
+
     <p class="text-dark ms-5">
       開催地：{{ $competition->city }}<br>
       会場：{{ $competition->venue }}<br>
@@ -25,12 +41,6 @@
       @csrf
       @method('PATCH')
 
-      @php
-        // 日付でグループ化
-        $grouped = $nominations->groupBy(fn($n) => optional($n->day?->date)->toDateString());
-        $myOrgId = optional(Auth::user()->referee)->organization_id;
-      @endphp
-
       <table class="table align-middle">
         <thead>
           <tr>
@@ -39,6 +49,7 @@
             <th style="width:50%">派遣審判員</th>
           </tr>
         </thead>
+
         <tbody>
         @forelse($grouped as $dateKey => $rows)
           @php
@@ -46,69 +57,104 @@
             $dateLabel = $dateKey ? \Carbon\Carbon::parse($dateKey)->format('Y/m/d') : '-';
           @endphp
 
-          @foreach ($rows as $idx => $n)
-            @php
-              // 自団体に割り当てられた枠数（無ければ 0）
-              $slots = (int) ($capByNomination[$n->id] ?? 0);
-
-              // 事前選択を枠数に合わせて切り詰め & 足りなければ null で埋める
-              $pre = array_slice($preAssigned[$n->id] ?? [], 0, $slots);
-              $pre = array_pad($pre, $slots, null);
-
-              // 候補者（コントローラ側で自団体＆条件フィルタ済みの想定）
-              $cands = $candidatesByNomination[$n->id] ?? collect();
-            @endphp
-
+          @foreach($rows as $idx => $n)
             <tr>
-              @if ($idx === 0)
+              @if($idx === 0)
                 <td rowspan="{{ $rowspan }}" class="align-middle fw-semibold">
                   {{ $dateLabel }}
                 </td>
               @endif
 
-              <td>
+              <td class="align-middle">
                 {{ $n->official?->name ?? '-' }}
-                @if($slots > 0)
-                  <span class="badge text-bg-primary ms-2">割当：{{ $slots }}</span>
-                @else
-                  <span class="badge text-bg-secondary ms-2">割当：0</span>
-                @endif
+
+                @php
+                  $need = (int)($needTotalByNomination[$n->id] ?? 0);
+                  $got  = (int)($assignedTotalByNomination[$n->id] ?? 0);
+                @endphp
+
+                <div class="small text-muted mt-1">
+                  @if ($isAdmin||$isCommittee)
+                    @if ($got<$need)
+                    <span class="small text-danger mt-1">
+                    @endif
+                    集計 {{ $got }}</span> / 
+                  @endif
+                  必要数 {{ $need }}
+                </div>
               </td>
 
-              <td>
-                @if ($slots > 0)
-                  <div class="d-flex gap-2 flex-wrap">
-                    @for ($i = 0; $i < $slots; $i++)
-                      <select name="assignments[{{ $n->id }}][]" class="form-select" style="min-width:220px;">
-                        <option value="" selected>* *</option>
-                        @foreach ($cands as $r)
-                          <option value="{{ $r->id }}" @selected($pre[$i] === $r->id)>
-                            {{ $r->organization->short_name }}｜{{ $r->surname_kanji }} {{ $r->name_kanji }}
+
+              <td class="align-middle">
+                {{-- 全団体ぶん、枠数のある分だけ select を連続で表示（まとまり無し） --}}
+                @foreach($orgsForView as $org)
+                  @php
+                    $orgId = (int) $org->id;
+
+                    // nomination × org の枠数
+                    $slots = (int) ($capMatrix[$n->id][$orgId] ?? 0);
+                    if ($slots <= 0) {
+                      continue; // 枠が0なら表示しない（必要なら表示したい場合はcontinueを外す）
+                    }
+
+                    // 事前割当（slot順）
+                    $rawPre = $preAssignedMatrix[$n->id][$orgId] ?? [];
+                    $pre = array_slice($rawPre, 0, $slots);
+                    $pre = array_pad($pre, $slots, null);
+
+                    // 候補者（nomination × org）
+                    $cands = $candidatesByNominationOrg[$n->id][$orgId] ?? collect();
+
+                    // 編集可否：adminは全部OK、committeeは自団体のみ、chiefは自団体のみ
+                    $editable = $isAdmin || ($orgId === $myOrgId);
+                    if ($isCommittee && $orgId !== $myOrgId) $editable = false;
+                  @endphp
+
+                  @for($i=0; $i<$slots; $i++)
+                    <div class="d-inline-block me-2 mb-2" style="min-width:240px;">
+                      <select
+                        name="assignments[{{ $n->id }}][{{ $orgId }}][]"
+                        class="form-select"
+                        @disabled(!$editable)
+                      >
+                        <option value="" @selected(empty($pre[$i]))>{{ $org->short_name }}｜* *</option>
+
+                        @foreach($cands as $r)
+                          <option value="{{ $r->id }}" @selected((int)$pre[$i] === (int)$r->id)>
+                            {{ $org->short_name }}｜{{ $r->surname_kanji }} {{ $r->name_kanji }}
                           </option>
                         @endforeach
                       </select>
-                    @endfor
-                  </div>
-                  @if($cands->isEmpty())
-                    <div class="small text-muted mt-1">自団体かつ条件に合致する候補者がいません。</div>
-                  @endif
-                @else
-                  <span class="text-muted small">（この役職・日付に自団体の割当はありません）</span>
+                    </div>
+                  @endfor
+                @endforeach
+                {{-- 枠が一つもない場合 --}}
+                @php
+                  $hasAnySlot = false;
+                  foreach ($orgsForView as $org) {
+                    $oid = (int)$org->id;
+                    if ((int)($capMatrix[$n->id][$oid] ?? 0) > 0) { $hasAnySlot = true; break; }
+                  }
+                @endphp
+                @if(!$hasAnySlot)
+                  <span class="text-muted small">（割当なし）</span>
                 @endif
               </td>
             </tr>
           @endforeach
+
         @empty
-          <tr><td colspan="3" class="text-muted">募集セル（nomination）がありません。</td></tr>
+          <tr>
+            <td colspan="3" class="text-muted">募集セル（nomination）がありません。</td>
+          </tr>
         @endforelse
         </tbody>
       </table>
-      
+
       <div class="text-center">
         <button type="submit" class="btn btn-primary px-4">保存</button>
-        <a href="{{route('admin.competitions.show')}}" class="btn btn-dark px-4">戻る</a>
+        <a href="{{ route('admin.competitions.show') }}" class="btn btn-dark px-4">戻る</a>
       </div>
-
     </form>
   </div>
 </div>

@@ -60,7 +60,7 @@ class Nomination extends Model
     public function referees(): BelongsToMany
     {
         return $this->belongsToMany(Referee::class, 'nomination_referee')
-            ->withPivot(['status', 'meta_json'])
+            ->withPivot(['status', 'organization_id', 'slot_no', 'meta_json'])
             ->withTimestamps();
     }
 
