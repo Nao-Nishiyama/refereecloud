@@ -53,68 +53,105 @@ class RefereesController extends Controller
 
     public function show(Request $request)
     {
-        $licId = $request->has('license') ? $request->integer('license') : null;
-        $orgId = $request->has('organization') ? $request->integer('organization') : null;
+        // -----------------------------
+        // 1) 入力の正規化（'' を null に）
+        // -----------------------------
+        $licId = $request->filled('license') ? (int) $request->input('license') : null;
+        $orgId = $request->filled('organization') ? (int) $request->input('organization') : null;
 
-        // '', 'with', 'only' 以外は '' に落とす
         $mode = (string) $request->query('trashed', '');
-        if (!in_array($mode, ['', 'with', 'only'], true)) {
-            $mode = '';
-        }
+        $mode = in_array($mode, ['', 'with', 'only'], true) ? $mode : '';
 
         $canViewTrashed = Gate::allows('referees.viewTrashed');
 
-        $q = \App\Models\Referee::query()->with(['license','organization'])
-            ->when(!is_null($licId), fn($q) => $q->where('license_id', $licId))
-            ->when(!is_null($orgId), fn($q) => $q->where('organization_id', $orgId));
+        // -----------------------------
+        // 2) 一覧（refs）
+        // -----------------------------
+        $refsQuery = Referee::query()
+            ->with(['license', 'organization'])
+            ->when($licId, fn($q) => $q->where('license_id', $licId))
+            ->when($orgId, fn($q) => $q->where('organization_id', $orgId))
+            ->orderBy('organization_id')
+            ->orderBy('registration_number');
 
         if ($canViewTrashed) {
-            if ($mode === 'with')  $q->withTrashed();
-            if ($mode === 'only')  $q->onlyTrashed();
+            if ($mode === 'with') $refsQuery->withTrashed();
+            if ($mode === 'only') $refsQuery->onlyTrashed();
         }
 
-        $allRefs = $this->referee->orderBy('organization_id')->orderBy('registration_number')
-            ->paginate(50)->withQueryString();
+        $refs = $refsQuery->get();
 
-        // 一覧データ（資格×団体のAND）
-        $refs = Referee::query()
-            ->when(!is_null($licId), fn($q) => $q->where('license_id', $licId))
-            ->when(!is_null($orgId), fn($q) => $q->where('organization_id', $orgId))
-            ->when($canViewTrashed && $mode==='only', fn($q) => $q->onlyTrashed())
-            ->when($canViewTrashed && $mode==='with',  fn($q) => $q->withTrashed())            ->orderBy('organization_id')->orderBy('registration_number')
-            ->get(); // ページングしたければ ->paginate(20)->withQueryString()
+        // -----------------------------
+        // 3) フィルタ表示用の件数（任意：Bladeで使ってるなら残す）
+        //    ここも '' を使わない（null なら作らない）
+        // -----------------------------
+        $refsByLic = $licId
+            ? Referee::query()->where('license_id', $licId)->get()
+            : collect();
 
-        $refsByLic = Referee::query()->where('license_id', $licId)->get();
-        $refsByOrg = Referee::query()->where('organization_id', $orgId)->get();
+        $refsByOrg = $orgId
+            ? Referee::query()->where('organization_id', $orgId)->get()
+            : collect();
 
-        // 左のカウント（モード反映）
-        $countsByLic = \App\Models\Referee::query()
-            ->when(!is_null($orgId), fn($q) => $q->where('organization_id', $orgId))
-            ->when($canViewTrashed && $mode==='only', fn($q) => $q->onlyTrashed())
-            ->when($canViewTrashed && $mode==='with',  fn($q) => $q->withTrashed())
-            ->selectRaw('license_id, COUNT(*) as cnt')->groupBy('license_id')->pluck('cnt','license_id');
+        // -----------------------------
+        // 4) カウント（countsByLic / countsByOrg）
+        //    「反対側フィルタ」と「trashedモード」を反映
+        // -----------------------------
+        $countsByLicQuery = Referee::query()
+            ->when($orgId, fn($q) => $q->where('organization_id', $orgId));
 
-        $countsByOrg = \App\Models\Referee::query()
-            ->when(!is_null($licId), fn($q) => $q->where('license_id', $licId))
-            ->when($canViewTrashed && $mode==='only', fn($q) => $q->onlyTrashed())
-            ->when($canViewTrashed && $mode==='with',  fn($q) => $q->withTrashed())
-            ->selectRaw('organization_id, COUNT(*) as cnt')->groupBy('organization_id')->pluck('cnt','organization_id');
+        if ($canViewTrashed) {
+            if ($mode === 'with') $countsByLicQuery->withTrashed();
+            if ($mode === 'only') $countsByLicQuery->onlyTrashed();
+        }
 
-        return view('admin.referees.show', [
-            'refs' => $refs,
-            'licId' => $licId,
-            'orgId' => $orgId,
-            'refsByLic' => $refsByLic,
-            'refsByOrg' => $refsByOrg,
-            'mode' => $mode,
-            'canViewTrashed' => $canViewTrashed,
-            'countsByLic' => $countsByLic,
-            'countsByOrg' => $countsByOrg,
-            'allRefs' => $allRefs,
-            'lics' => \App\Models\License::orderBy('id')->get(),
-            'orgs' => \App\Models\Organization::orderBy('id')->get(),
-        ]);
+        $countsByLic = $countsByLicQuery
+            ->selectRaw('license_id, COUNT(*) as cnt')
+            ->groupBy('license_id')
+            ->pluck('cnt', 'license_id');
+
+        $countsByOrgQuery = Referee::query()
+            ->when($licId, fn($q) => $q->where('license_id', $licId));
+
+        if ($canViewTrashed) {
+            if ($mode === 'with') $countsByOrgQuery->withTrashed();
+            if ($mode === 'only') $countsByOrgQuery->onlyTrashed();
+        }
+
+        $countsByOrg = $countsByOrgQuery
+            ->selectRaw('organization_id, COUNT(*) as cnt')
+            ->groupBy('organization_id')
+            ->pluck('cnt', 'organization_id');
+
+        // -----------------------------
+        // 5) “データがあるか”判定用（あなたのBladeの if ($allRefs->isNotEmpty()) 用）
+        //    ここは「通常のみ」で良いならこのまま。抹消含めたいなら withTrashed() を足す。
+        // -----------------------------
+        $allRefs = Referee::query()
+            ->orderBy('organization_id')
+            ->orderBy('registration_number')
+            ->get();
+
+        // マスタ
+        $lics = License::orderBy('id')->get(['id','name']);
+        $orgs = Organization::orderBy('id')->get(['id','short_name','full_name']);
+
+        return view('admin.referees.show', compact(
+            'refs',
+            'licId',
+            'orgId',
+            'refsByLic',
+            'refsByOrg',
+            'mode',
+            'canViewTrashed',
+            'countsByLic',
+            'countsByOrg',
+            'allRefs',
+            'lics',
+            'orgs',
+        ));
     }
+
 
     public function showForChief(Request $request)
     {

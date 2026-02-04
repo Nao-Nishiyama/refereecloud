@@ -29,10 +29,8 @@
   <div class="container">
     <div class="row g-2 align-items-end mb-3">
 
-      {{-- ▼ フィルタ用フォーム（GET） --}}
-      <form id="filters" method="get" action="{{ route('admin.referees.approval') }}"
-            class="col-9 row g-2 align-items-end">
-
+      <form id="filters" method="get" action="{{ route('admin.referees.approval') }}" class="col-9 row g-2 align-items-end">
+        
         <div class="col-3">
           <label class="form-label mb-1" style="font-size: 0.9em;">資格</label>
           <select name="license" class="form-select" onchange="this.form.submit()">
@@ -94,13 +92,11 @@
         </div>
       </form>
 
-      {{-- ▼ 右カラム：全員承認（POST） ※別フォーム！ --}}
       <div class="col-3 d-flex justify-content-end">
         <form method="post"
               action="{{ route('admin.referee.approvals.bulkApprove') }}"
               onsubmit="return confirm('表示されている未承認者をすべて承認します。よろしいですか？')">
           @csrf
-          {{-- 現在のフィルタ条件を引き継ぐ --}}
           <input type="hidden" name="license"        value="{{ $licId }}">
           <input type="hidden" name="organization"   value="{{ $orgId }}">
           <input type="hidden" name="trashed"        value="{{ $mode }}">
