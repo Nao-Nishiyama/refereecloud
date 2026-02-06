@@ -33,11 +33,11 @@
 
         {{-- 副審ブロック以上 --}}
         <div class="row g-3 justify-content-center mb-1">
-            <div class="col-2 text-end">
+            <div class="col-4 text-end">
                 <label for="second_ref_block" class="form-label">{{ __('副審') }} <span style="font-size: .75em">{{ __('（ブロック以上）')}}</span></label>
             </div>
-            <div class="col-2">
-                <input type="number" name="second_ref_block" id="second_ref_block" class="form-control text-center w-75" value="">
+            <div class="col-4">
+                <input type="number" name="second_ref_block" id="second_ref_block" class="form-control text-center w-25" value="">
                         @error('second_ref_block')
                             <div class="text-danger small">{{ $message }}</div>
                         @enderror
