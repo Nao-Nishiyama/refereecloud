@@ -11,7 +11,7 @@
                 <label for="year" class="form-label">{{ __('報告年度') }} <span style="font-size: .75em">{{ __('（西暦）')}}</span></label>
             </div>
             <div class="col-4">
-                <input type="text" name="year" id="year" class="form-control text-center" value="">
+                <input type="text" name="year" id="year" class="form-control text-center w-75" value="">
                 @error('year')
                     <div class="text-danger small">{{ $message }}</div>
                 @enderror
@@ -124,8 +124,8 @@
 
         <div class="row justify-content-center">
         <div class="text-center">
-            <button type="submit" class="btn btn-outline-success text-center mt-3" style="width: 20%">保存</button>
-            <a href="{{route('reports.show', Auth::user()->id )}}" class="btn btn-dark px-4 mt-3 ms-2" style="width: 20%">戻る</a>
+            <button type="submit" class="btn btn-outline-success text-center mt-3">保存</button>
+            <a href="{{route('reports.show', Auth::user()->id )}}" class="btn btn-dark px-4 mt-3 ms-2">戻る</a>
         </div>
         </div>
     </form>
