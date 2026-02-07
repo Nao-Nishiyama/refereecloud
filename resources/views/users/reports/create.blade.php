@@ -123,10 +123,20 @@
         </div>
 
         <div class="row justify-content-center">
-        <div class="text-center">
-            <button type="submit" class="btn btn-outline-success text-center mt-3">保存</button>
-            <a href="{{route('reports.show', Auth::user()->id )}}" class="btn btn-dark px-4 mt-3 ms-2">戻る</a>
-        </div>
+<div class="d-flex gap-2 mt-3 justify-content-center" style="max-width: 400px;">
+    <button type="submit"
+            class="btn btn-outline-success flex-fill text-nowrap">
+        保存
+    </button>
+
+    <a href="{{ route('reports.show', Auth::user()->id) }}"
+       class="btn btn-dark flex-fill text-nowrap text-center">
+        戻る
+    </a>
+</div>
+
+</div>
+
         </div>
     </form>
 @endsection
