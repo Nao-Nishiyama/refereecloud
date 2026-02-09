@@ -91,22 +91,22 @@
     <h5>{{$year}}年度 活動報告一覧</h5>
     <hr>
 
-    <table class="table table-sm align-middle text-center">
-      <thead>
-        <tr>
+    <div class="row gx-5 justify-content-center">
+      <div class="col-12">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle bg-white border text-secondary text-center">
+            <thead class="small table-success text-secondary">
+          <tr>
             <th></th>
             <th>資格</th>
             <th>氏名</th>
             <th>主</th>
             <th>副</th>
-            <th>記</th>
-            <th>AS</th>
-            <th>線</th>
             <th>詳細</th>
             <th></th>
-        </tr>
-        <tr>
-        </tr>
+          </tr>
+          <tr>
+          </tr>
       </thead>
       <tbody>
         @php
@@ -137,15 +137,9 @@
             @forelse ($reports as $rp)
                 <td>{{ $rp->first_ref_block + $rp->first_ref }}</td>
                 <td>{{ $rp->second_ref_block + $rp->second_ref }}</td>
-                <td>{{ $rp->scorer }}</td>
-                <td>{{ $rp->assistant_scorer }}</td>
-                <td>{{ $rp->linejudge }}</td>
                 <td><a href="{{ route('reports.show', $r->user->id)}}"><i class="fa-solid fa-clipboard text-success"></i></a></td>
                 <td></td>
             @empty
-                <td><span class="text-muted">-</span></td>
-                <td><span class="text-muted">-</span></td>
-                <td><span class="text-muted">-</span></td>
                 <td><span class="text-muted">-</span></td>
                 <td><span class="text-muted">-</span></td>
                 <td>
