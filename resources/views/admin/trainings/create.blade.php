@@ -1,0 +1,141 @@
+@extends('layouts.app')
+
+@section('title', '講習会案内 作成')
+
+@section('content')
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">講習会案内 作成</h4>
+        <a href="{{ route('admin.trainings.index') }}" class="btn btn-outline-dark btn-sm">一覧へ</a>
+      </div>
+
+      @if ($errors->any())
+        <div class="alert alert-danger">
+          <div class="fw-semibold mb-1">入力内容にエラーがあります。</div>
+          <ul class="mb-0">
+            @foreach ($errors->all() as $error)
+              <li>{{ $error }}</li>
+            @endforeach
+          </ul>
+        </div>
+      @endif
+
+      <form method="POST"
+            action="{{ route('admin.trainings.store') }}"
+            enctype="multipart/form-data"
+            class="card shadow-sm">
+        @csrf
+
+        <div class="card-body">
+
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">タイトル <span class="text-danger">*</span></label>
+              <input type="text"
+                     name="title"
+                     class="form-control"
+                     value="{{ old('title') }}"
+                     required>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">開催日（任意）</label>
+              <input type="date"
+                     name="event_date"
+                     class="form-control"
+                     value="{{ old('event_date') }}">
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">締切（任意）</label>
+              <input type="date"
+                     name="deadline"
+                     class="form-control"
+                     value="{{ old('deadline') }}">
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">公開状態</label>
+              <select name="is_published" class="form-select">
+                <option value="1" @selected(old('is_published', '1') == '1')>公開</option>
+                <option value="0" @selected(old('is_published') == '0')>非公開</option>
+              </select>
+              <div class="form-text">ユーザー一覧に表示するかどうか。</div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">会場（任意）</label>
+              <input type="text"
+                     name="venue"
+                     class="form-control"
+                     value="{{ old('venue') }}"
+                     placeholder="例：〇〇体育館 / 〇〇会館">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">都道府県（任意）</label>
+              <select name="prefecture_id" class="form-select">
+                <option value="">指定なし</option>
+                @foreach($prefectures as $pref)
+                  <option value="{{ $pref->id }}"
+                    @selected((string)old('prefecture_id') === (string)$pref->id)>
+                    {{ $pref->name }}
+                  </option>
+                @endforeach
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">団体（任意）</label>
+              <select name="organization_id" class="form-select">
+                <option value="">指定なし</option>
+                @foreach($organizations as $org)
+                  <option value="{{ $org->id }}"
+                    @selected((string)old('organization_id') === (string)$org->id)>
+                    {{ $org->short_name }}
+                  </option>
+                @endforeach
+              </select>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">概要（任意）</label>
+              <textarea name="summary"
+                        rows="2"
+                        class="form-control"
+                        placeholder="一覧などで短く表示する用">{{ old('summary') }}</textarea>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">本文（任意）</label>
+              <textarea name="body"
+                        rows="8"
+                        class="form-control"
+                        placeholder="詳細案内本文（持ち物、申込方法、注意事項など）">{{ old('body') }}</textarea>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">資料PDF（任意）</label>
+              <input type="file"
+                     name="pdf"
+                     class="form-control"
+                     accept="application/pdf">
+              <div class="form-text">PDFのみ / 10MB程度推奨</div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="card-footer bg-white d-flex gap-2 justify-content-center">
+          <button type="submit" class="btn btn-success px-4">保存</button>
+          <a href="{{ route('admin.trainings.index') }}" class="btn btn-outline-dark px-4">戻る</a>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+@endsection

@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TrainingController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\ChiefAssignController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\Admin\CompetitionsController;
 use App\Http\Controllers\NominationCapacityController;
 use App\Http\Controllers\Admin\RefereeExportController;
 use App\Http\Controllers\Admin\RefereeImportController;
+use App\Http\Controllers\Admin\TrainingAdminController;
 use App\Http\Controllers\Admin\RefereeReportsController;
 use App\Http\Controllers\Admin\RefereeApprovalsController;
 use App\Http\Controllers\Admin\CompetitionImportController;
@@ -131,6 +133,8 @@ Route::group(['middleware' => 'auth'], function(){
 
         Route::get('profiles/{id}/edit', [ProfilesController::class, 'edit'])->name('profiles.edit');
         Route::patch('profiles/{id}/update', [ProfilesController::class, 'update'])->name('profiles.update');
+
+        Route::resource('trainings', TrainingAdminController::class)->except(['show']);
     });
 
     Route::middleware(['auth','is.chief'])->group(function () {
@@ -158,4 +162,7 @@ Route::group(['middleware' => 'auth'], function(){
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     
+    // 講習会
+    Route::get('/trainings', [TrainingController::class, 'index'])->name('trainings.index');
+    Route::get('/trainings/{training}', [TrainingController::class, 'show'])->name('trainings.show');
 });

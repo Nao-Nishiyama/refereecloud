@@ -28,7 +28,11 @@ class AppServiceProvider extends ServiceProvider
 
         if (app()->environment('production')) {
         URL::forceScheme('https');
-    }
+        }
+
+        Gate::define('manage-trainings', function ($user) {
+            return in_array((int)$user->role_id, [1,2], true);
+        });
     }
 
 }
