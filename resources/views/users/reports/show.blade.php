@@ -18,12 +18,13 @@
             <a class="btn border border-secondary shadow rounded custom-hover" href="{{ route('reports.create') }}">{{ __('活動を報告する') }}</a>
         </div>
     </div>
+    @if ($user->referee)
+    <td>
+        {{ $user->referee->surname_kanji }} {{ $user->referee->name_kanji }}
     @else
-    <div class="row gx-5 d-flex justify-content-center mb-3">
-        <div class="col-auto">
-            <a class="btn border border-secondary shadow rounded custom-hover" href="{{ route('admin.referees.reports.show') }}">{{ __('一覧に戻る') }}</a>
-        </div>
-    </div>
+        {{ $user->surname_kana }} {{ $user->name_kana}}
+    <span class="text-muted" style="font-size: .75em";>：データ未連携</span>
+    </td>
     @endif
     <div class="row gx-5 d-flex justify-content-center table-responsive">
         {{-- Report List --}}
@@ -31,7 +32,6 @@
             <thead class="small table-success text-secondary">
                 <tr>
                     <th>報告年度</th>
-                    <th>氏名</th>
                     <th>主審<br><span style="font-size: .75em">（ブロック以上）</span></th>
                     <th>副審<br><span style="font-size: .75em">（ブロック以上）</span></th>
                     <th>主審<br><span style="font-size: .75em">（都道府県）</span></th>
@@ -46,14 +46,6 @@
                 @foreach ( $reports as $report )
                 <tr>
                     <td>{{ $report->year }}</td>
-                    <td>
-                        @if ($user->referee)
-                        {{ $user->referee->surname_kanji }}{{ $user->referee->name_kanji }}
-                        @else
-                        {{ $user->surname_kana }}{{ $user->name_kana}}
-                        <span class="text-muted" style="font-size: .75em";>データ未連携</span>
-                        @endif
-                    </td>
                     <td>{{ $report->first_ref_block }}</td>
                     <td>{{ $report->second_ref_block }}</td>
                     <td>{{ $report->first_ref }}</td>
@@ -70,4 +62,13 @@
             <a href="{{ route('index') }}"class="btn btn-dark flex-fill text-nowrap text-center">戻る</a>
         </div>
     </div>
+        @else
+    <div class="row gx-5 d-flex justify-content-center mb-3">
+        <div class="col-auto text-center">
+            編集権限がありません。
+            <br><br>
+            <a class="btn border border-secondary shadow rounded custom-hover" href="{{ route('index') }}">トップ画面に戻る</a>
+        </div>
+    </div>
+    @endif
 @endsection

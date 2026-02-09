@@ -34,7 +34,7 @@
                             <div class="fs-4 fw-bold">{{ $user->reports->count(); }}</div>
                         </div>
                     </div>
-                    <a href="{{ route('reports.show', $user->id) }}" class="stretched-link"></a>
+                    <a href="{{ route('reports.show', Auth::user()->id) }}" class="stretched-link"></a>
                 </div>
             </div>
 
