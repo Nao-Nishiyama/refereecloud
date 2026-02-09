@@ -59,7 +59,7 @@
         </div>
         <div class="col-3">
           <button class="btn btn-outline-secondary" hidden>絞り込み</button>
-          <a href="{{ route('admin.referees.reports.show') }}" class="btn btn-outline-dark">リセット</a>
+          <a href="{{ route('admin.referees.reports.show') }}" class="btn btn-outline-dark btn-sm">リセット</a>
         </div>
         @endif
     </form>
