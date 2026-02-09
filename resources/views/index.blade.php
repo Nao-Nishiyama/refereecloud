@@ -15,8 +15,15 @@
                             <i class="fa-solid fa-calendar-check fa-lg"></i>
                         </div>
                         <div>
-                            <div class="small text-muted">今後の大会</div>
-                            <div class="fs-4 fw-bold">{{ $upcomingCompetitions }}</div>
+                            <div class="small text-muted">今年度の大会</div>
+                            <div>
+                                <span class="fs-4 fw-bold">
+                                    {{ $upcomingCompetitions }}
+                                </span>
+                                <span class="small text-muted">
+                                    / {{ $fiscalYearCompetitions }}（総）
+                                </span>
+                            </div>
                         </div>
                     </div>
                     <a href="{{ route('competitions.show') }}" class="stretched-link"></a>
@@ -388,6 +395,12 @@
 
         </div>
     </div>
+
+    <footer class="text-center small text-muted mt-4">
+        <a href="{{ route('terms') }}">利用規約</a> |
+        <a href="{{ route('privacy') }}">プライバシーポリシー</a><br>
+        本サービスはSSL暗号化通信により保護されています
+    </footer>
 
     {{-- ふわっとカード用（任意） --}}
     <style>

@@ -27,6 +27,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::view('/terms', 'legal.terms')->name('terms');
+Route::view('/privacy', 'legal.privacy')->name('privacy');
+
 Auth::routes();
     
 Route::group(['middleware' => 'auth'], function(){

@@ -50,13 +50,17 @@ class HomeController extends Controller
 
         // 基本メトリクス（適宜あなたのスキーマに合わせて）
         $today = now();
-        $upcomingCompetitions = Competition::whereDate('start_day', '>=', $today->toDateString())->count();
+        $upcomingCompetitions = $this->competition->whereDate('start_day', '>=', $today->toDateString())->count();
 
-        $startOfFiscalYear = Carbon::now()->month >= 4
-        ? Carbon::now()->startOfYear()->addMonths(3)   // 今年4/1
-        : Carbon::now()->subYear()->startOfYear()->addMonths(3); // 去年4/1
+        $startOfFiscalYear = $today->month >= 4
+            ? Carbon::create($today->year, 4, 1)
+            : Carbon::create($today->year - 1, 4, 1);
 
         $endOfFiscalYear = $startOfFiscalYear->copy()->addYear()->subDay(); // 翌年3/31
+
+        $fiscalYearCompetitions = Competition::whereDate('start_day', '<=', $endOfFiscalYear)
+            ->whereDate('end_day', '>=', $startOfFiscalYear)
+            ->count();
 
         $year_comps = Competition::whereBetween('start_day', [$startOfFiscalYear, $endOfFiscalYear])
             ->orderBy('start_day', 'desc')
@@ -90,6 +94,7 @@ class HomeController extends Controller
         return view('index', compact(
             'user',
             'upcomingCompetitions',
+            'fiscalYearCompetitions',
             'pendingApplicants',
             'myOrgRefCount',
             'latestCompetitions',

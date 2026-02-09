@@ -70,4 +70,10 @@
         </div>
     </div>
 </div>
+<footer class="text-center small text-muted mt-4">
+  <a href="{{ route('terms') }}">利用規約</a> |
+  <a href="{{ route('privacy') }}">プライバシーポリシー</a><br>
+  本サービスはSSL暗号化通信により保護されています
+</footer>
+
 @endsection
