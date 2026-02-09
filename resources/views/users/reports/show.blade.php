@@ -13,23 +13,24 @@
     </style>
 <div class="container">
     @if ($user->id === Auth::user()->id)
-    <div class="row gx-5 d-flex justify-content-center mb-3">
-        <div class="col-auto">
-            <a class="btn border border-secondary shadow rounded custom-hover" href="{{ route('reports.create') }}">{{ __('活動を報告する') }}</a>
+        <div class="row gx-5 d-flex justify-content-center mb-3">
+            <div class="col-auto">
+                <a class="btn border border-secondary shadow rounded custom-hover" href="{{ route('reports.create') }}">{{ __('活動を報告する') }}</a>
+            </div>
         </div>
-    </div>
-    @if ($user->referee)
-    <td>
-        {{ $user->referee->surname_kanji }} {{ $user->referee->name_kanji }}
-    @else
-        {{ $user->surname_kana }} {{ $user->name_kana}}
-    <span class="text-muted" style="font-size: .75em";>：データ未連携</span>
-    </td>
-    @endif
-    <div class="row gx-5 d-flex justify-content-center table-responsive">
-        {{-- Report List --}}
-        <table class="table table-hover align-middle bg-white border text secondary text-center">
-            <thead class="small table-success text-secondary">
+        @if ($user->referee)
+        <td>
+            {{ $user->referee->surname_kanji }} {{ $user->referee->name_kanji }}
+        @else
+            {{ $user->surname_kana }} {{ $user->name_kana}}
+        <span class="text-muted" style="font-size: .75em";>：データ未連携</span>
+        </td>
+        @endif
+        <div class="row gx-5 justify-content-center">
+        <div class="col-12">
+            <div class="table-responsive">
+            <table class="table table-hover align-middle bg-white border text-secondary text-center">
+                <thead class="small table-success text-secondary">
                 <tr>
                     <th>報告年度</th>
                     <th>主審<br><span style="font-size: .75em">（ブロック以上）</span></th>
@@ -41,9 +42,9 @@
                     <th>線審</th>
                     <th>講習会</th>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach ( $reports as $report )
+                </thead>
+                <tbody>
+                @foreach ($reports as $report)
                 <tr>
                     <td>{{ $report->year }}</td>
                     <td>{{ $report->first_ref_block }}</td>
@@ -56,19 +57,25 @@
                     <td>{{ $report->training }}</td>
                 </tr>
                 @endforeach
-            </tbody>
-        </table>
-        <div class="text-center">
-            <a href="{{ route('index') }}"class="btn btn-dark flex-fill text-nowrap text-center">戻る</a>
+                </tbody>
+            </table>
+            </div>
+
+            <div class="text-center mt-3">
+            <a href="{{ route('index') }}" class="btn btn-dark px-4 text-nowrap">
+                戻る
+            </a>
+            </div>
         </div>
-    </div>
-        @else
-    <div class="row gx-5 d-flex justify-content-center mb-3">
-        <div class="col-auto text-center">
-            編集権限がありません。
-            <br><br>
-            <a class="btn border border-secondary shadow rounded custom-hover" href="{{ route('index') }}">トップ画面に戻る</a>
         </div>
-    </div>
+
+    @else
+        <div class="row gx-5 d-flex justify-content-center mb-3">
+            <div class="col-auto text-center">
+                編集権限がありません。
+                <br><br>
+                <a class="btn border border-secondary shadow rounded custom-hover" href="{{ route('index') }}">トップ画面に戻る</a>
+            </div>
+        </div>
     @endif
 @endsection
