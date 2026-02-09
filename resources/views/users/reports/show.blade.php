@@ -18,6 +18,7 @@
                 <a class="btn border border-secondary shadow rounded custom-hover" href="{{ route('reports.create') }}">{{ __('活動を報告する') }}</a>
             </div>
         </div>
+    @endif
         @if ($user->referee)
         <td>
             {{ $user->referee->surname_kanji }} {{ $user->referee->name_kanji }}
@@ -61,21 +62,14 @@
             </table>
             </div>
 
+        @if (Auth::user()->role_id === 1 | Auth::user()->role_id === 2 | Auth::user()->role_id === 3)
             <div class="text-center mt-3">
-            <a href="{{ route('index') }}" class="btn btn-dark px-4 text-nowrap">
-                戻る
-            </a>
+            <a href="{{ route('admin.referees.reports.show') }}" class="btn btn-dark px-4 text-nowrap">一覧へ戻る</a>
+            </div>
+        @endif
+            <div class="text-center mt-3">
+            <a href="{{ route('index') }}" class="btn btn-outline-dark px-4 text-nowrap">ダッシュボードへ戻る</a>
             </div>
         </div>
-        </div>
-
-    @else
-        <div class="row gx-5 d-flex justify-content-center mb-3">
-            <div class="col-auto text-center">
-                編集権限がありません。
-                <br><br>
-                <a class="btn border border-secondary shadow rounded custom-hover" href="{{ route('index') }}">トップ画面に戻る</a>
-            </div>
-        </div>
-    @endif
+    </div>
 @endsection
