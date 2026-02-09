@@ -22,6 +22,8 @@ class Training extends Model
         'is_published',
         'created_by',
         'pdf_path',
+        'link_url',
+        'link_label',
     ];
 
     protected $casts = [

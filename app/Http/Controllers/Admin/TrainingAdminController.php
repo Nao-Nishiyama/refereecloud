@@ -23,14 +23,28 @@ class TrainingAdminController extends Controller
 
     public function index()
     {
-        $trainings = Training::query()
-            ->with(['files' => fn($q) => $q->latest()->limit(1)]) // 最新1件だけ読む
+            $trainings = Training::query()
+            ->where('is_published', 1) // ユーザーは公開のみ、管理は条件分岐してOK
+            ->with([
+                'prefecture:id,name',
+                'organization:id,short_name',
+                'files' => fn($q) => $q->latest()->limit(1), // 最新PDFだけ
+            ])
             ->orderByDesc('event_date')
+            ->orderByDesc('id')
             ->get();
 
+
         $trainingsWithTrashed = Training::query()
+            ->where('is_published', 1) // ユーザーは公開のみ、管理は条件分岐してOK
+            ->with([
+                'prefecture:id,name',
+                'organization:id,short_name',
+                'files' => fn($q) => $q->latest()->limit(1), // 最新PDFだけ
+            ])
             ->withTrashed()
             ->orderByDesc('event_date')
+            ->orderByDesc('id')
             ->get();
 
         return view('admin.trainings.index', compact('trainings', 'trainingsWithTrashed'));
@@ -55,6 +69,8 @@ class TrainingAdminController extends Controller
             'deadline' => ['nullable','date'],
             'is_published' => ['nullable','boolean'],
             'pdf' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
+            'link_url' => ['nullable','url','max:2048'],
+            'link_label' => ['nullable','string','max:255'],
         ]);
 
         $data['is_published'] = (bool)($data['is_published'] ?? false);
@@ -75,7 +91,7 @@ class TrainingAdminController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.trainings.index')->with('status','講習会案内を作成しました。');
+        return redirect()->route('trainings.index')->with('status','講習会案内を作成しました。');
     }
 
     public function edit(Training $training)
@@ -119,7 +135,7 @@ class TrainingAdminController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.trainings.index')->with('status','更新しました。');
+        return redirect()->route('trainings.index')->with('status','更新しました。');
     }
 
     public function destroy(Training $training)

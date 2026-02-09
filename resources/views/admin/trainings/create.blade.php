@@ -116,6 +116,23 @@
                         class="form-control"
                         placeholder="詳細案内本文（持ち物、申込方法、注意事項など）">{{ old('body') }}</textarea>
             </div>
+            <div class="row g-2">
+              <div class="col-12 col-md-8">
+                <label class="form-label">関連リンクURL（任意）</label>
+                <input type="url" name="link_url" class="form-control"
+                      value="{{ old('link_url', $training->link_url ?? '') }}"
+                      placeholder="https://...">
+                @error('link_url')<div class="text-danger small">{{ $message }}</div>@enderror
+              </div>
+
+              <div class="col-12 col-md-4">
+                <label class="form-label">リンク表示名（任意）</label>
+                <input type="text" name="link_label" class="form-control"
+                      value="{{ old('link_label', $training->link_label ?? '') }}"
+                      placeholder="例：申込フォーム">
+                @error('link_label')<div class="text-danger small">{{ $message }}</div>@enderror
+              </div>
+            </div>
 
             <div class="col-12">
               <label class="form-label">資料PDF（任意）</label>
@@ -125,10 +142,8 @@
                      accept="application/pdf">
               <div class="form-text">PDFのみ / 10MB程度推奨</div>
             </div>
-
           </div>
         </div>
-
         <div class="card-footer bg-white d-flex gap-2 justify-content-center">
           <button type="submit" class="btn btn-success px-4">保存</button>
           <a href="{{ route('admin.trainings.index') }}" class="btn btn-outline-dark px-4">戻る</a>

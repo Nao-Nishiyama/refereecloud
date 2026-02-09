@@ -4,23 +4,16 @@
 
 @section('content')
     <div class="container">
-                <h6>講習会関係</h6>
-            <div class="card mb-3">
+        <a href="{{ route('trainings.index') }}" class="text-decoration-none">
+            <div class="card mb-3 card-hover">
                 <div class="card-body d-flex justify-content-between align-items-center">
                     <div>
-                    <div class="fw-semibold">講習会・案内</div>
-                    <div class="text-muted small">講習会や連絡事項の確認</div>
-                    </div>
-
-                    <div class="d-flex gap-2">
-                    <a href="{{ route('trainings.index') }}" class="btn btn-outline-dark btn-sm">閲覧</a>
-
-                    @canany(['admin', 'committee'])
-                        <a href="{{ route('admin.trainings.index') }}" class="btn btn-primary btn-sm">管理</a>
-                    @endcanany
+                        <div class="fw-semibold">お知らせ</div>
+                        <div class="text-muted small">講習会や連絡事項の確認</div>
                     </div>
                 </div>
             </div>
+        </a>
         <hr>
         <h4 class="mb-3">活動情報</h4>
 
