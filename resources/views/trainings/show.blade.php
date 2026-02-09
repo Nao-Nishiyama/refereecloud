@@ -26,9 +26,15 @@
   <div class="card mb-3">
     <div class="card-body">
       <div class="row g-2 small text-muted mb-2">
-        @if($training->prefecture)<div class="col-12 col-md-4">都道府県：{{ $training->prefecture->name }}</div>@endif
-        @if($training->organization)<div class="col-12 col-md-4">団体：{{ $training->organization->short_name }}</div>@endif
-        @if($training->venue)<div class="col-12 col-md-4">会場：{{ $training->venue }}</div>@endif
+        @if($training->prefecture)
+        <div>都道府県：{{ $training->prefecture->name }}</div>
+        @endif
+        @if($training->organization)
+        <div>団体：{{ $training->organization->full_name }}</div>
+        @endif
+        @if($training->venue)
+        <div>会場：{{ $training->venue }}</div>
+        @endif
       </div>
 
       @if($training->summary)

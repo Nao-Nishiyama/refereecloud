@@ -24,7 +24,6 @@ class TrainingAdminController extends Controller
     public function index()
     {
             $trainings = Training::query()
-            ->where('is_published', 1) // ユーザーは公開のみ、管理は条件分岐してOK
             ->with([
                 'prefecture:id,name',
                 'organization:id,short_name',
@@ -36,7 +35,6 @@ class TrainingAdminController extends Controller
 
 
         $trainingsWithTrashed = Training::query()
-            ->where('is_published', 1) // ユーザーは公開のみ、管理は条件分岐してOK
             ->with([
                 'prefecture:id,name',
                 'organization:id,short_name',
@@ -68,6 +66,8 @@ class TrainingAdminController extends Controller
             'body' => ['nullable','string'],
             'deadline' => ['nullable','date'],
             'is_published' => ['nullable','boolean'],
+            'prefecture_id' => ['nullable', 'string'],
+            'organization_id' => ['nullable', 'string'],
             'pdf' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
             'link_url' => ['nullable','url','max:2048'],
             'link_label' => ['nullable','string','max:255'],
@@ -115,7 +115,11 @@ class TrainingAdminController extends Controller
             'body' => ['nullable','string'],
             'deadline' => ['nullable','date'],
             'is_published' => ['nullable','boolean'],
+            'prefecture_id' => ['nullable', 'string'],
+            'organization_id' => ['nullable', 'string'],
             'pdf' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
+            'link_url' => ['nullable','url','max:2048'],
+            'link_label' => ['nullable','string','max:255'],
         ]);
 
         $data['is_published'] = (bool)($data['is_published'] ?? false);

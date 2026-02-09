@@ -32,7 +32,7 @@ class TrainingController extends Controller
     {
         $training = Training::with([
         'prefecture:id,name',
-        'organization:id,short_name',
+        'organization:id,full_name',
         'files' => fn($q) => $q->latest(),
         'files.uploader:id', // uploaderリレーションあるなら
         ])->findOrFail($id);
