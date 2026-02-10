@@ -9,7 +9,7 @@
 @endphp
 
 <div class="container">
-    <table class="table align-middle table-hover bg-white border text-secondary text-center shadow w-7">
+    <table class="table table-fixed align-middle table-hover bg-white border text-secondary text-center shadow">
       <thead class="small table-success text-secondary">
         <tr>
           <th>大会名</th>
@@ -46,23 +46,19 @@
             @endphp
 
             <tr>
-              {{-- 大会名（長い場合は省略＋title） --}}
-              <td class="d-ellipsis">
-                {{-- <span class="truncate" title="{{ $competition->name }}"> --}}
-                  {{ $competition->name }}
-                {{-- </span> --}}
+              <td class="td-ellipsis">
+                  <div class="line">{{ $competition->name }}</div>
               </td>
 
-              <td>
-                <div class="fw-semibold">
-                  <span class="truncate" title="{{ $competition->venue }}">
-                    {{ $competition->venue }}
-                  </span>
+              <td class="td-ellipsis fw-semibold" title="{{ $competition->venue }}">
+                <div class="line">
+                  {{ $competition->venue }}
                 </div>
-                <div class="small text-muted">{{ $competition->city }}</div>
+                <div class="small text-muted">
+                  {{ $competition->city }}
+                </div>
               </td>
 
-              {{-- 募集日程：同日なら1つ、違うなら範囲（年は開始日のみ） --}}
               <td class="text-nowrap">
                 {{ $start->format('y/n/j') }}
                 @if (!$start->isSameDay($end))

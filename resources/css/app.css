@@ -11,21 +11,4 @@
 }
 /* 必要なら Bootstrap/Tailwind をここで import してOK */
 
-.truncate {
-  display: inline-block;
-  max-width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* テーブル内で確実に省略 */
-.td-ellipsis{
-  max-width: 160px;          /* ここが重要：幅上限を与える */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-@media (max-width: 576px){
-  .td-ellipsis{ max-width: 90px; }
-}
+/* 列の幅を固定しないと ellipsis は発動しない */

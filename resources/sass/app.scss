@@ -16,3 +16,26 @@
 .navbar-toggler .fa-bars {
   line-height: 1;
 }
+
+.table-fixed {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.td-ellipsis {
+  max-width: 220px;      /* PC */
+  overflow: hidden;
+}
+
+.td-ellipsis .line {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 992px){
+  .td-ellipsis { max-width: 160px; }
+}
+@media (max-width: 576px){
+  .td-ellipsis { max-width: 120px; }
+}
