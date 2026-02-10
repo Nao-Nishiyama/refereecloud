@@ -60,6 +60,7 @@ class ProfilesController extends Controller
             'name'          => ['required', 'string', 'max:255'],
             'registration_number' => ['required', 'string', 'max:255'],
             'prefecture_id' => ['required'],
+            'organization_id' => ['required'],
             'license_id'    => ['required'],
             'remarks'       => ['nullable', 'string', 'max:1000'],
         ]);
@@ -87,6 +88,7 @@ class ProfilesController extends Controller
         $ref->name          = $request->name;
         $ref->registration_number = $request->registration_number;
         $ref->prefecture_id = $request->prefecture_id;
+        $ref->organization_id = $request->organization_id;
         $ref->license_id    = $request->license_id;
         $ref->birth_date    = $request->birth_date;
         $ref->mrs_member_id = $request->mrs_member_id;

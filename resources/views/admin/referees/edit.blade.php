@@ -3,6 +3,7 @@
 @section('title', "レフェリー情報編集")
 
 @section('content')
+<div class="container">
     <div class="row justify-content-center">
         <div class="col-md-4">
             <table class="table table-border-bottom">
@@ -96,14 +97,14 @@
                 @if (Auth::user()->role_id === 3)
                     <a href="{{ route('admin.referees.showForChief', ['organization' => optional(Auth::user()->referee)->organization_id]) }}" class="btn btn-outline-dark">一覧へ戻る</a>
                 @else
-                    <a href="{{ route('admin.referees.show') }}" class="btn btn-outline-dark">一覧へ戻る</a>
+                    <a href="{{ route('admin.referees.show') }}" class="btn btn-outline-dark">一覧</a>
                 @endif
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-4 mt-4">
             <div class="container">
                 @if ( $referee->user )
-                    <h5>ユーザーとレフェリーは紐付けされています</h5>
+                    <span>ユーザーとレフェリーは紐付けされています</span>
                         <form method="POST" action="{{ route('admin.referees.detach-user', $referee->id) }}">
                             @csrf
                             @method('PATCH')
@@ -195,4 +196,5 @@
             </div>
         </div>
     </div>
+</div>
 @endsection

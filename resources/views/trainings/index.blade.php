@@ -37,6 +37,9 @@
               <a href="{{ route('trainings.show', $t->id) }}" class="text-decoration-none">
                 {{ $t->title }}
               </a>
+              @if (!$t->is_published)
+                  <span class="fs-6 small text-danger">（未公開）</span>
+              @endif
             </h5>
             <div class="text-muted small">
               @if($t->event_date)
@@ -86,36 +89,42 @@
           </p>
         @endif
 
-        <div class="d-flex gap-2 flex-wrap">
-          <a href="{{ route('trainings.show', $t->id) }}" class="btn btn-outline-secondary btn-sm">
-            詳細
-          </a>
+        @if (!$t->trashed())
+          <div class="d-flex gap-2 flex-wrap">
+            @if ($t->is_published)
+              <a href="{{ route('trainings.show', $t->id) }}" class="btn btn-outline-secondary btn-sm">
+                詳細
+              </a>
+            @endif
 
-          @if($t->link_url)
-            <a href="{{ $t->link_url }}" target="_blank" rel="noopener"
-               class="btn btn-outline-primary btn-sm">
-              {{ $t->link_label ?: '関連リンク' }}
-            </a>
-          @endif
+            @if($t->link_url)
+              <a href="{{ $t->link_url }}" target="_blank" rel="noopener"
+                class="btn btn-outline-primary btn-sm">
+                {{ $t->link_label ?: '関連リンク' }}
+              </a>
+            @endif
 
-          @if($latestFile)
-            <a href="{{ \Illuminate\Support\Facades\Storage::url($latestFile->path) }}"
-               target="_blank" class="btn btn-outline-dark btn-sm">
-              PDF
-            </a>
-          @endif
+            @if($latestFile)
+              <a href="{{ \Illuminate\Support\Facades\Storage::url($latestFile->path) }}"
+                target="_blank" class="btn btn-outline-dark btn-sm">
+                資料
+              </a>
+            @endif
 
-          @canany(['admin','committee'])
-            <a href="{{ route('admin.trainings.edit', $t->id) }}" class="btn btn-outline-success btn-sm">
-              編集
-            </a>
-          @endcanany
-        </div>
-
-        @if($t->deadline)
-          <div class="small text-muted mt-2">
-            締切：{{ \Carbon\Carbon::parse($t->deadline)->format('Y/n/j') }}
+            @canany(['admin','committee'])
+              <a href="{{ route('admin.trainings.edit', $t->id) }}" class="btn btn-outline-success btn-sm">
+                編集
+              </a>
+            @endcanany
           </div>
+
+          @if($t->deadline)
+            <div class="small text-muted mt-2">
+              締切：{{ \Carbon\Carbon::parse($t->deadline)->format('Y/n/j') }}
+            </div>
+          @endif
+        @else
+            <span class="small test-muted">削除済み</span>
         @endif
       </div>
     </div>

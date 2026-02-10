@@ -9,16 +9,14 @@
 @endphp
 
 <div class="container">
-  <div class="row d-flex justify-content-center table-responsive">
-    <table class="table align-middle table-hover bg-white border text-secondary text-center shadow w-100">
+    <table class="table align-middle table-hover bg-white border text-secondary text-center shadow w-7">
       <thead class="small table-success text-secondary">
         <tr>
           <th>大会名</th>
-          <th style="width:90px;">種別</th>
-          <th style="width:240px;">開催地 / 会場</th>
-          <th class="text-nowrap" style="width:150px;">募集日程</th>
-          <th class="text-nowrap" style="width:90px;">締切</th>
-          <th class="text-center" style="width:80px;">申込</th>
+          <th>会場</th>
+          <th class="text-nowrap">募集日程</th>
+          <th class="text-nowrap">締切</th>
+          <th class="text-center">申込</th>
         </tr>
       </thead>
 
@@ -49,24 +47,16 @@
 
             <tr>
               {{-- 大会名（長い場合は省略＋title） --}}
-              <td style="max-width:280px;">
-                <span class="d-inline-block text-truncate" style="max-width:280px;" title="{{ $competition->name }}">
+              <td class="d-ellipsis">
+                {{-- <span class="truncate" title="{{ $competition->name }}"> --}}
                   {{ $competition->name }}
-                </span>
+                {{-- </span> --}}
               </td>
 
-              {{-- 種別：バッジでスッキリ --}}
-              <td class="text-center">
-                <span class="badge bg-success-subtle text-success">
-                  {{ $competition->type->name }}
-                </span>
-              </td>
-
-              {{-- 開催地 / 会場：1列に統合して情報密度を整理 --}}
               <td>
                 <div class="fw-semibold">
-                  <span title="{{ $competition->venue }}">
-                    {{ \Illuminate\Support\Str::limit($competition->venue, 16) }}
+                  <span class="truncate" title="{{ $competition->venue }}">
+                    {{ $competition->venue }}
                   </span>
                 </div>
                 <div class="small text-muted">{{ $competition->city }}</div>
@@ -113,7 +103,6 @@
         @endif
       </tbody>
     </table>
-  </div>
 </div>
 
 @endsection

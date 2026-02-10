@@ -5,7 +5,7 @@
 
 @section('content')
     <div class="row justify-content-center">
-        <div class="col-6">
+        <div class="col-8">
             @if ( Auth::user()->referee )
                 <form action="{{ route('profile.update') }}" method="post" class="bg-white shadow rounded-3 p-5" enctype="multipart/form-data">
                     @csrf
@@ -90,7 +90,7 @@
                     
                     {{-- 都道府県 --}}
                     <div class="mb-3">
-                        <label for="prefecture_id" class="form-label">所属</label>
+                        <label for="prefecture_id" class="form-label">都道府県</label>
                         <select name="prefecture_id" id="prefecture_id" class="form-control">
                             <option value="{{ old('prefecture_id', $user->referee->prefecture->id)}}" hidden>{{ $user->referee->prefecture->name}}</option>
                             @foreach ($all_prefectures as $prefecture)
@@ -100,6 +100,21 @@
 
                         {{-- error --}}
                         @error('prefecture_id')
+                            <p class="text-danger small">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="organization_id" class="form-label">団体</label>
+                        <select name="organization_id" id="organization_id" class="form-control">
+                            <option value="{{ old('organization_id', $user->referee->organization->id)}}" hidden>{{ $user->referee->organization->short_name}}</option>
+                            @foreach ($all_organizations as $organization)
+                                <option value="{{ $organization->id }}">{{ $organization->short_name }}</option>
+                            @endforeach
+                        </select>
+
+                        {{-- error --}}
+                        @error('organization_id')
                             <p class="text-danger small">{{ $message }}</p>
                         @enderror
                     </div>
@@ -169,7 +184,7 @@
                             <p class="text-danger small">{{ $message }}</p>
                         @enderror
                     </div>
-                    <button type="submit" class="btn btn-primary px-5">保存する</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
                     <a href="{{route('profile.show', $user->referee->id)}}" class="btn btn-dark">戻る</a>
                 </form>
             @else

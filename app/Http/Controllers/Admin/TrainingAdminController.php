@@ -21,33 +21,6 @@ class TrainingAdminController extends Controller
         });
     }
 
-    public function index()
-    {
-            $trainings = Training::query()
-            ->with([
-                'prefecture:id,name',
-                'organization:id,short_name',
-                'files' => fn($q) => $q->latest()->limit(1), // 最新PDFだけ
-            ])
-            ->orderByDesc('event_date')
-            ->orderByDesc('id')
-            ->get();
-
-
-        $trainingsWithTrashed = Training::query()
-            ->with([
-                'prefecture:id,name',
-                'organization:id,short_name',
-                'files' => fn($q) => $q->latest()->limit(1), // 最新PDFだけ
-            ])
-            ->withTrashed()
-            ->orderByDesc('event_date')
-            ->orderByDesc('id')
-            ->get();
-
-        return view('admin.trainings.index', compact('trainings', 'trainingsWithTrashed'));
-    }
-
     public function create()
     {
         return view('admin.trainings.create', [

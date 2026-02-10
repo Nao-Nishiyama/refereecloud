@@ -5,7 +5,7 @@
 
 @section('content')
     <div class="row gx-5 d-flex justify-content-center table-responsive mt-3">
-        <div class="col-6">
+        <div class="col-10">
             @if ($user->referee)
             <div class="row mb-4 justify-content-center">                    
                 <div class="col-auto">
@@ -18,99 +18,100 @@
                 </div>
             </div>
                 <div class="row mb-3">
-                    <div class="col-4 text-end">
-                        {{ __('登録番号：')}}
+                    <div class="col-5 text-end">
+                        登録番号：
                     </div>
-                    <div class="col-8">
+                    <div class="col-7">
                         {{ $user->referee->registration_number }}
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <div class="col-4 text-end">
-                        {{ __('生年月日：')}}
+                    <div class="col-5 text-end">
+                        生年月日：
                     </div>
-                    <div class="col-8">
+                    <div class="col-7">
                         {{ \Carbon\Carbon::parse($user->referee->birth_date)->format('Y 年 m 月 d 日') }}
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <div class="col-4 text-end">
-                        {{ __('年齢：')}}
+                    <div class="col-5 text-end">
+                        年齢：
                     </div>
-                    <div class="col-8">
+                    <div class="col-7">
                         {{ \Carbon\Carbon::parse($user->referee->birth_date)->age }}
-                        {{ __('歳（本日時点）') }}
+                        歳（本日時点）
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <div class="col-4 text-end">
-                        {{ __('所属：')}}
+                    <div class="col-5 text-end">
+                        所属：
                     </div>
-                    <div class="col-8">
-                        {{ $user->referee->prefecture->name }}
+                    <div class="col-7">
+                        {{ $user->referee->prefecture->name }} <br>
+                        {{ $user->referee->organization->full_name }}
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <div class="col-4 text-end">
-                        {{ __('資格：')}}
+                    <div class="col-5 text-end">
+                        資格：
                     </div>
-                    <div class="col-8">
+                    <div class="col-7">
                         {{ $user->referee->license->name }}
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <div class="col-4 text-end">
-                        {{ __('カテゴリー等：')}}
+                    <div class="col-5 text-end">
+                        カテゴリー：
                     </div>
-                    <div class="col-8">
+                    <div class="col-7">
                         @foreach ( $user->referee->categories as $category )
                             {{-- <span class="me-2"> --}}
                                 {{ $category->name }}
                                     @if (! $loop->last)
-                                        <span class="me-2">{{ __(', ')}}</span>
+                                        <span class="me-2">, </span>
                                     @endif
                             {{-- </span> --}}
                         @endforeach
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <div class="col-4 text-end">
-                        {{ __('mrsメンバーID：')}}
+                    <div class="col-5 text-end">
+                        jva-mrs ID：
                     </div>
-                    <div class="col-8">
+                    <div class="col-7">
                         {{ $user->referee->mrs_member_id }}
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <div class="col-4 text-end">
-                        {{ __('ステータス：')}}
+                    <div class="col-5 text-end">
+                        ステータス：
                     </div>
-                    <div class="col-8">
+                    <div class="col-7">
                         @if ( $user->role_id == 1 )
-                            {{__('管理者')}}
+                            管理者
                         @elseif ( $user->role_id == 2 )
-                            {{__('審判委員会三役')}}
+                            審判委員会三役
                         @elseif ( $user->role_id == 3 )
-                            {{__('組織加盟団体審判委員長')}}
+                            組織加盟団体審判委員長
                         @else
-                            {{__('一般ユーザー')}}
+                            一般ユーザー
                         @endif
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <div class="col-4 text-end">
-                        {{ __('備考：')}}
+                    <div class="col-5 text-end">
+                        備考：
                     </div>
-                    <div class="col-8">
+                    <div class="col-7">
                         {{ $user->referee->remarks }}
                     </div>
                 </div>
-                <div class="text-end">
-                    <a href="{{ route('profile.edit') }}" class="btn btn-outline-secondary">{{__('編集')}}</a>
-                    <a href="{{route('index')}}" class="btn btn-dark ms-2" style="width: 10%">戻る</a>
+                <div class="text-center">
+                    <a href="{{ route('profile.edit') }}" class="btn btn-outline-secondary">編集</a>
+                    <a href="{{ route('index') }}" class="btn btn-dark ms-2">戻る</a>
                 </div>
             @else
-                {{__('データベース未連携')}}
+                データベース未連携
             @endif
         </div>
     </div>

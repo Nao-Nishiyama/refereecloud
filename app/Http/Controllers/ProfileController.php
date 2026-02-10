@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\License;
 use App\Models\Referee;
 use App\Models\Category;
+use App\Models\Organization;
 use App\Models\Prefecture;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,13 +17,15 @@ class ProfileController extends Controller
     private $user;
     private $referee;
     private $prefecture;
+    private $organization;
     private $license;
     private $category;
 
-    public function __construct(User $user, Referee $referee, Prefecture $prefecture, License $license, Category $category)
+    public function __construct(User $user, Referee $referee, Prefecture $prefecture, Organization $organization, License $license, Category $category)
     {
         $this->user = $user;
         $this->prefecture = $prefecture;
+        $this->organization = $organization;
         $this->license = $license;
         $this->category = $category;
     }
@@ -37,6 +40,7 @@ class ProfileController extends Controller
     {
         $user = $this->user->findOrFail(Auth::user()->id);
         $all_prefectures = $this->prefecture->all();
+        $all_organizations = $this->organization->all();
         $all_licenses = $this->license->all();
         $all_categories = $this->category->all();
 
@@ -45,12 +49,7 @@ class ProfileController extends Controller
             $selected_categories[] = $category_referee->id;
         }
 
-        return view('users.profile.edit')
-                ->with('user', $user)
-                ->with('all_prefectures', $all_prefectures)
-                ->with('all_licenses', $all_licenses)
-                ->with('all_categories', $all_categories)
-                ->with('selected_categories', $selected_categories);
+        return view('users.profile.edit', compact('user', 'all_prefectures', 'all_organizations', 'all_licenses', 'all_categories', 'selected_categories'));
     }
 
     public function update(Request $request)

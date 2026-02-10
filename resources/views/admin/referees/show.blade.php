@@ -39,6 +39,7 @@
 
 @if ($allRefs->isNotEmpty())
 
+<div class="container">
   {{-- ▼ ① 通常/抹消 切替（admin/committee かつ 権限ありの場合だけ） --}}
   @if (($isAdmin || $isCommittee) && $canViewTrashed)
     <div class="row gx-5 d-flex justify-content-center table-responsive">
@@ -125,11 +126,9 @@
         <thead class="small table-success text-secondary">
           <tr>
             <th>氏名</th>
-            <th>登録番号</th>
             <th>所属</th>
             <th>資格</th>
             <th>紐付け</th>
-            <th>詳細</th>
           </tr>
         </thead>
         <tbody class="text-start">
@@ -139,11 +138,14 @@
             </tr>
           @else
             @foreach ($refs as $ref)
-              <tr>
-                <td class="text-center">{{ $ref->surname_kanji }} {{ $ref->name_kanji }}</td>
-                <td class="text-center">{{ $ref->registration_number }}</td>
-                <td class="text-center">{{ $ref->organization->short_name }}</td>
-                <td class="text-center">{{ $ref->license->name }}</td>
+              <tr class="position-relative">
+
+                <td class="text-center">
+                  <a href="{{ route('admin.referees.edit', $ref->id) }}" class="stretched-link" aria-label="詳細">
+                  </a>
+                  {{ $ref->surname_kanji }} {{ $ref->name_kanji }}</td>
+                <td class="text-center truncate">{{ $ref->organization->short_name }}</td>
+                <td class="text-center">{{ ($ref->license->name) }}</td>
                 <td class="text-center">
                   @if ($ref->user)
                     <i class="fa-solid fa-circle-check text-success" title="紐付けあり"></i>
@@ -151,22 +153,11 @@
                     <i class="fa-solid fa-xmark text-danger" title="紐付けなし"></i>
                   @endif
                 </td>
-                <td class="text-center">
-                  <a href="{{ route('admin.referees.edit', $ref->id) }}" title="詳細">
-                    <i class="fa-solid fa-circle-info text-secondary"></i>
-                  </a>
-                </td>
               </tr>
             @endforeach
           @endif
         </tbody>
       </table>
-
-      {{-- ページングがあるならここ（必要なら） --}}
-      {{-- <div class="d-flex justify-content-center">
-        {{ $refs->links() }}
-      </div> --}}
-
     </div>
   </div>
 
@@ -178,4 +169,5 @@
     </div>
   </div>
 @endif
+</div>
 @endsection

@@ -26,7 +26,7 @@
         ?? \Illuminate\Support\Facades\Gate::allows('referees.viewTrashed');
 @endphp
 
-<div class="container w-75">
+<div class="container">
     <form method="get" action="{{ route('admin.referees.reports.show') }}" class="row g-2 align-items-end mb-3" id="filters">
       @if ($user->role_id === 1 || $user->role_id === 2)
         <div class="col-3">

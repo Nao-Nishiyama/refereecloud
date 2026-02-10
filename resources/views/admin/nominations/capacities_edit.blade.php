@@ -23,9 +23,9 @@
 }
 
 /* 左3列の固定幅（※変更したら .sticky-2/.sticky-3 の left も合わせる） */
-.w-col-1 { width: 120px; min-width: 120px; }  /* 大会名 */
-.w-col-2 { width: 120px; min-width: 120px; }  /* 実施日 */
-.w-col-3 { width: 160px; min-width: 160px; }  /* 役職 */
+.w-col-1 { width: 80px; min-width: 80px; }  /* 大会名 */
+.w-col-2 { width: 80px; min-width: 80px; }  /* 実施日 */
+.w-col-3 { width: 80px; min-width: 80px; }  /* 役職 */
 
 /* ヘッダ固定（最上段） */
 .table.freeze-three thead th{
@@ -43,13 +43,13 @@
   box-shadow: 2px 0 0 rgba(0,0,0,.05);
 }
 .table.freeze-three .sticky-2{
-  position: sticky; left: 120px;             /* = .w-col-1 */
+  position: sticky; left: 80px;             /* = .w-col-1 */
   z-index: 6; background: #fff;
   box-shadow: 2px 0 0 rgba(0,0,0,.05);
 }
 .table.freeze-three .sticky-3{
   position: sticky;              /* 1列目 */
-  left: calc(120px + 120px);                 /* 1+2列目 */
+  left: calc(80px + 80px);                 /* 1+2列目 */
   z-index: 6; background: #fff;
   box-shadow: 2px 0 0 rgba(0,0,0,.05);
 }
@@ -60,7 +60,7 @@
 .table.freeze-three thead .sticky-3 { z-index: 7; }
 
 /* 右側の団体列の最小幅（見やすさ用） */
-.org-col { min-width: 80px; }
+.org-col { min-width: 60px; }
 
 /* 合計セルの幅 */
 .total-col { min-width: 100px; }
@@ -100,7 +100,7 @@
             <th class="sticky-3 w-col-3">役職</th>
             @foreach ($visibleOrgs as $org)
               <th class="text-center org-col">
-                {{ $org->short_name }}
+                {{ \Illuminate\Support\Str::limit($org->short_name, 4) }}
               </th>
             @endforeach
             <th class="text-center total-col">合計</th>
@@ -140,7 +140,7 @@
                 {{-- 大会名セル：大会の最初の行だけ表示して rowSpan で結合 --}}
                 @if (!$printedCompetitionCell)
                   <th class="sticky-1 w-col-1 align-middle" rowspan="{{ $rowsCountForCompetition }}">
-                    {{ $competition->name }}
+                    {{ \Illuminate\Support\Str::limit($competition->name, 6) }}
                   </th>
                   @php $printedCompetitionCell = true; @endphp
                 @endif
@@ -154,7 +154,7 @@
 
                 {{-- 役職（常に1行に1つ） --}}
                 <td class="sticky-3 w-col-3 align-middle">
-                  {{ $nom->official?->name ?? '-' }}
+                  {{ \Illuminate\Support\Str::limit($nom->official?->name ?? '-', 4) }}
                 </td>
 
                 {{-- 団体ごとの人数入力 --}}

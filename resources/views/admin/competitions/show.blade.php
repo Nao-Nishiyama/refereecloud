@@ -6,19 +6,19 @@
 <div class="container">
     <div class="row gx-5 d-flex justify-content-center table-responsive">
         {{-- Competition List --}}
-        <table class="table align-middle table-hover bg-white border text-secondary text-center shadow">
+        <table class="table align-middle table-hover bg-white border text-secondary text-center shadow w-75">
             <thead class="small table-success text-secondary">
                 <tr>
                     <th>大会名</th>
                     <th>種別</th>
-                    <th>開催地・会場</th>
+                    <th>会場</th>
                     <th>募集日程</th>
                     <th>締切</th>
-                    <th class="text-center" style="width:60px">レフ</th>
-                    <th class="text-center" style="width:60px">編集</th>
-                    <th class="text-center" style="width:60px">状態</th>
+                    <th class="text-center">詳細</th>
+                    <th class="text-center">編集</th>
+                    <th class="text-center">状態</th>
                     @if (Auth::user()->role_id === 1)
-                        <th>完全消去</th>
+                        <th>削除</th>
                     @endif
                 </tr>
             </thead>
@@ -31,19 +31,19 @@
                 @if($competitions)
                     @foreach ($competitions as $competition)
                         <tr>
-                            <td style="max-width:240px">
-                                <span class="d-inline-block text-truncate" style="max-width:240px"
+                            <td>
+                                <span class="d-inline-block text-truncate"
                                     title="{{ $competition->name }}">
-                                    {{ $competition->name }}
+                                    {{ \Illuminate\Support\Str::limit($competition->name, 6) }}
                                 </span>
                             </td>
                             <td>
                                 <span class="badge bg-success-subtle text-success">
-                                    {{ $competition->type->name }}
+                                    {{ \Illuminate\Support\Str::limit($competition->type->name, 2) }}
                                 </span>
                             </td>
                             <td>
-                                <div class="fw-semibold">{{ $competition->venue }}</div>
+                                <div class="fw-semibold">{{ \Illuminate\Support\Str::limit($competition->venue, 4) }}</div>
                                 <div class="small text-muted">{{ $competition->city }}</div>
                             </td>
                             <td class="text-nowrap">
@@ -52,7 +52,7 @@
                                 @else
                                     {{ \Carbon\Carbon::parse($competition->start_day)->format('y/n/j') }}
                                     –
-                                    {{ \Carbon\Carbon::parse($competition->end_day)->format('n/j') }}
+                                    {{ \Illuminate\Support\Str::limit(\Carbon\Carbon::parse($competition->end_day)->format('n/j'), 2) }}
                                 @endif
                             </td>
                             <td class="text-center">{{ \Carbon\Carbon::parse($competition->application_deadline)->format('n/j') }}</td>

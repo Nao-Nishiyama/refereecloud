@@ -5,7 +5,7 @@
 
 @section('content')
     <div class="row justify-content-center">
-        <div class="col-6">
+        <div class="col-8">
             <form action="{{ route('admin.profiles.update', $ref->id) }}" method="post" class="bg-white shadow rounded-3 p-5" enctype="multipart/form-data">
                 @csrf
                 @method('PATCH')
@@ -86,13 +86,27 @@
                     @enderror
                 </div>
                 
-                {{-- 都道府県 --}}
                 <div class="mb-3">
-                    <label for="prefecture_id" class="form-label">所属</label>
+                    <label for="prefecture_id" class="form-label">都道府県</label>
                     <select name="prefecture_id" id="prefecture_id" class="form-control">
                         <option value="{{ old('prefecture_id', $ref->prefecture->id)}}" hidden>{{ $ref->prefecture->name}}</option>
                         @foreach ($prefectures as $prefecture)
                             <option value="{{ $prefecture->id }}">{{ $prefecture->name }}</option>
+                        @endforeach
+                    </select>
+
+                    {{-- error --}}
+                    @error('prefecture_id')
+                        <p class="text-danger small">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="organization_id" class="form-label">団体</label>
+                    <select name="organization_id" id="organization_id" class="form-control">
+                        <option value="{{ old('organization_id', $ref->organization->id)}}" hidden>{{ $ref->organization->short_name}}</option>
+                        @foreach ($organizations as $organization)
+                            <option value="{{ $organization->id }}">{{ $organization->short_name }}</option>
                         @endforeach
                     </select>
 

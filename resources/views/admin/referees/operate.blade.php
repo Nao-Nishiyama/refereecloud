@@ -18,10 +18,8 @@
         $common = [
           'license' => $licId,
           'organization' => $orgId,
-        // ページ番号は切り替え時にリセット
         ];
 
-        // 抹消表示権限（Gateで判定。@can 使うなら下行は不要）
         $canViewTrashed = $canViewTrashed
             ?? \Illuminate\Support\Facades\Gate::allows('referees.viewTrashed');
     @endphp
@@ -29,7 +27,7 @@
   <div class="container">
     <div class="row g-2 align-items-end mb-3">
 
-      <form id="filters" method="get" action="{{ route('admin.referees.approval') }}" class="col-9 row g-2 align-items-end">
+      <form id="filters" method="get" action="{{ route('admin.referees.approval') }}" class="row g-2 align-items-end">
         
         <div class="col-3">
           <label class="form-label mb-1" style="font-size: 0.9em;">資格</label>
@@ -66,8 +64,8 @@
         </div>
 
         <div class="col-4 d-flex align-items-center gap-2">
-          <a href="{{ route('admin.referees.approval') }}" class="btn btn-sm btn-outline-dark"  style="font-size: 0.9em;">リセット</a>
-
+          <a href="{{ route('admin.referees.approval') }}" class="btn btn-sm btn-outline-dark">
+          リセット</a>
           @php
             $appBase   = route('admin.referees.approval');
             $appCommon = [
@@ -83,16 +81,15 @@
           <div class="btn-group">
             <a href="{{ $urlApplicants }}"
               class="btn btn-sm {{ $onlyApplicants ? 'btn-primary' : 'btn-outline-primary' }}">
-              新規申請者
+              新規
             </a>
             @if($onlyApplicants)
               <a href="{{ $urlClearApplicants }}" class="btn btn-sm btn-outline-secondary">解除</a>
             @endif
           </div>
-        </div>
       </form>
 
-      <div class="col-3 d-flex justify-content-end">
+      {{-- <div class="col-3 d-flex justify-content-end"> --}}
         <form method="post"
               action="{{ route('admin.referee.approvals.bulkApprove') }}"
               onsubmit="return confirm('表示されている未承認者をすべて承認します。よろしいですか？')">
@@ -103,9 +100,9 @@
           <input type="hidden" name="applicants"     value="{{ $onlyApplicants ? 1 : 0 }}">
           <input type="hidden" name="approved_year"  value="{{ $approvedYear }}">
 
-          <button class="btn btn-sm btn-success">全員承認</button>
+          <button class="btn btn-sm btn-success">承認</button>
         </form>
-      </div>
+      {{-- </div> --}}
     </div>
 
       <script>
