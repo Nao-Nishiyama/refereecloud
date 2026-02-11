@@ -6,7 +6,7 @@
 <div class="container">
     <div class="row gx-5 d-flex justify-content-center table-responsive">
         {{-- Competition List --}}
-        <table class="table align-middle table-hover bg-white border text-secondary text-center shadow w-75">
+        <table class="table align-middle table-hover bg-white border text-secondary text-center shadow">
             <thead class="small table-success text-secondary">
                 <tr>
                     <th>大会名</th>
