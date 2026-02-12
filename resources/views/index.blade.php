@@ -332,9 +332,13 @@
                     <thead class="table-light">
                         <tr>
                             <th>大会名</th>
-                            <th style="width:90px;">種別</th>
-                            <th class="text-nowrap" style="width:220px;">期間</th>
-                            <th style="width:140px;">開催地</th>
+                            <th>種別</th>
+                            <th>
+                                期間
+                                <span class="small text-muted fw-light">
+                                    / 会場
+                                </span>
+                            </th>
                             @canany(['admin','committee','chief'])
                                 <th class="text-center" style="width:80px;">管理</th>
                             @endcanany
@@ -374,10 +378,10 @@
                                         〜
                                         {{ $end->format('n月j日') }}（{{ $end->isoFormat('dd') }}）
                                     @endif
+                                    <div class="small text-muted">
+                                        {{$c->venue}}
+                                    </div>
                                 </td>
-
-                                {{-- 開催地 --}}
-                                <td>{{ $c->city }}</td>
 
                                 {{-- 管理 --}}
                                 @canany(['admin','committee','chief'])
