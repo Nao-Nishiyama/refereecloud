@@ -9,7 +9,7 @@
 
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="mb-0">講習会案内 作成</h4>
-        <a href="{{ route('admin.trainings.index') }}" class="btn btn-outline-dark btn-sm">一覧へ</a>
+        <a href="{{ route('trainings.index') }}" class="btn btn-outline-dark btn-sm">一覧へ</a>
       </div>
 
       @if ($errors->any())
