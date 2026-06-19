@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\License;
-use App\Models\Referee;
-use App\Models\Organization;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\License;
+use App\Models\Organization;
+use App\Models\Referee;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class RefereeExportController extends Controller
 {
@@ -34,26 +35,45 @@ class RefereeExportController extends Controller
         ]);
 
         $query = Referee::query();
-
+        
         if (!empty($validated['license_ids'])) {
-            $query->whereIn('license_id', $validated['license_ids']);
+            $query->whereIn('referees.license_id', $validated['license_ids']);
         }
+
         if (!empty($validated['organization_ids'])) {
-            $query->whereIn('organization_id', $validated['organization_ids']);
+            $query->whereIn('referees.organization_id', $validated['organization_ids']);
         }
+
+        $currentLicenseYears = DB::table('referee_license_histories')
+            ->selectRaw('referee_id, license_id, MIN(acquired_year) as current_license_year')
+            ->groupBy('referee_id', 'license_id');
 
         $referees = $query
-            ->with(['license:id,name', 'organization:id,short_name'])
-            ->orderBy('registration_number')
+            ->leftJoinSub($currentLicenseYears, 'cly', function ($join) {
+                $join->on('cly.referee_id', '=', 'referees.id')
+                    ->on('cly.license_id', '=', 'referees.license_id');
+            })
+            ->with([
+                'license:id,name',
+                'organization:id,short_name',
+                'licenseHistories:id,referee_id,license_id,acquired_year',
+            ])
+            ->orderBy('referees.license_id', 'asc')
+            ->orderBy('cly.current_license_year', 'asc')
+            ->orderBy('referees.registration_number', 'asc')
             ->get([
-                'id',
-                'registration_number',
-                'surname_kanji','name_kanji',
-                'surname_kana','name_kana',
-                'surname','name',
-                'birth_date',
-                'email',
-                'license_id','organization_id',
+                'referees.id',
+                'referees.registration_number',
+                'referees.surname_kanji',
+                'referees.name_kanji',
+                'referees.surname_kana',
+                'referees.name_kana',
+                'referees.surname',
+                'referees.name',
+                'referees.birth_date',
+                'referees.email',
+                'referees.license_id',
+                'referees.organization_id',
             ]);
 
         $filename = 'referees_' . now()->format('Ymd_His') . '.csv';
@@ -67,7 +87,7 @@ class RefereeExportController extends Controller
             );
 
             fputcsv($out, $toSjis([
-                '登録番号','氏名','フリガナ','英字姓','英字名','生年月日','メール','資格','団体'
+                '登録番号','氏名','フリガナ','英字姓','英字名','生年月日','メール','資格','取得年','団体'
             ]));
 
             foreach ($referees as $r) {
@@ -77,9 +97,10 @@ class RefereeExportController extends Controller
                     $r->surname_kana.' '.$r->name_kana,
                     $r->surname,
                     $r->name,
-                    (string)$r->birth_date, // CarbonでもOK
+                    (string)$r->birth_date,
                     $r->email,
                     optional($r->license)->name ?? '',
+                    $r->current_license_year ?? '',
                     optional($r->organization)->short_name ?? '',
                 ]));
             }

@@ -20,6 +20,7 @@
   $common = array_filter([
     'license'      => $licId ?: null,
     'organization' => $orgId ?: null,
+    'q'            => $q ?? null,
   ], fn($v) => !is_null($v) && $v !== '');
 
   // 抹消表示権限（controllerで渡しているならそれを優先、無ければGate）
@@ -69,6 +70,18 @@
       <form method="GET" action="{{ route('admin.referees.show') }}" class="mb-2">
         <div class="row g-2 align-items-end">
 
+          {{-- レフェリー検索 --}}
+          <div class="col-12 col-md-4">
+            <label class="form-label mb-1" style="font-size: 0.9em;">レフェリー検索</label>
+            <input
+              type="text"
+              name="q"
+              value="{{ $q ?? '' }}"
+              class="form-control form-control-sm"
+              placeholder="氏名・カナ・登録番号"
+            >
+          </div>
+          
           {{-- 資格 --}}
           <div class="col-12 col-md-4">
             <label class="form-label mb-1" style="font-size: 0.9em;">資格</label>
@@ -106,6 +119,11 @@
           <input type="hidden" name="page" value="1">
 
           <div class="col-12 col-md-auto">
+            <button type="submit" class="btn btn-sm btn-success">
+              検索
+            </button>
+          </div>
+          <div class="col-12 col-md-auto">
             <a href="{{ route('admin.referees.show') }}" class="btn btn-sm btn-outline-secondary">
               解除
             </a>
@@ -128,6 +146,8 @@
             <th>氏名</th>
             <th>所属</th>
             <th>資格</th>
+            <th>取得</th>
+            <th>性別</th>
             <th>紐付け</th>
             <th>詳細</th>
           </tr>
@@ -142,7 +162,11 @@
               <tr>
                 <td class="text-center">{{ $ref->surname_kanji }} {{ $ref->name_kanji }}</td>
                 <td class="text-center">{{ \Illuminate\Support\Str::limit($ref->organization->short_name, 6) }}</td>
-                <td class="text-center">{{ \Illuminate\Support\Str::limit($ref->license->name, 2) }}</td>
+                <td class="text-center">{{ \Illuminate\Support\Str::limit($ref->license->name, 3) }}</td>
+                <td class="text-center">
+                    {{ $ref->current_license_year_short }}
+                </td>
+                <td class="text-center">{{ $ref->gender_name }}</td>
                 <td class="text-center">
                   @if ($ref->user)
                     <i class="fa-solid fa-circle-check text-success" title="紐付けあり"></i>

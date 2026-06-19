@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Facades\Schema;
+use App\Models\RefereeLicenseHistory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Referee extends Model
 {
@@ -12,11 +14,13 @@ class Referee extends Model
     protected $fillable = [
     'user_id','surname','name','surname_kanji','name_kanji',
     'surname_kana','name_kana','registration_number','prefecture_id',
-    'organization_id','license_id','birth_date','mrs_member_id','remarks', 
-    'created_at', 'updated_at', 'deleted_at'
+    'organization_id','license_id','birth_date', 'gender','mrs_member_id','remarks', 'created_at', 'updated_at', 'deleted_at'
     ];
 
     use SoftDeletes;
+    
+    const GENDER_MALE = 1;
+    const GENDER_FEMALE = 2;
     
     public function user()
     {
@@ -36,6 +40,11 @@ class Referee extends Model
     public function license()
     {
         return $this->belongsTo(License::class);
+    }
+
+    public function licenseHistories()
+    {
+        return $this->hasMany(RefereeLicenseHistory::class);
     }
 
     public function categories()
@@ -90,4 +99,35 @@ class Referee extends Model
     {
         return $this->hasOne(RefereeApproval::class);
     }
+
+    protected function genderName(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => match ((int) $this->gender) {
+                1 => '男',
+                2 => '女',
+                default => '',
+            }
+        );
+    }
+
+    public function getCurrentLicenseYearAttribute()
+    {
+        $history = $this->licenseHistories
+            ->where('license_id', $this->license_id)
+            ->sortByDesc('acquired_year')
+            ->first();
+
+        return $history?->acquired_year;
+    }
+
+    public function getCurrentLicenseYearShortAttribute()
+    {
+        $year = $this->current_license_year;
+
+        return $year
+            ? substr((string)$year, -2)
+            : '';
+    }
+    
 }

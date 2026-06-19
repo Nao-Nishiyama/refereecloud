@@ -11,6 +11,11 @@ class License extends Model
         return $this->hasMany(Referee::class);
     }
 
+    public function refereeLicenseHistories()
+    {
+        return $this->hasMany(\App\Models\RefereeLicenseHistory::class);
+    }
+
     public function competitionLicense()
     {
         return $this->hasMany(CompetitionLicense::class);

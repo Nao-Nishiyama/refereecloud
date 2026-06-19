@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Pagination\LengthAwarePaginator;
+use App\Models\RefereeLicenseHistory;
 
 class RefereesController extends Controller
 {
@@ -53,6 +54,8 @@ class RefereesController extends Controller
 
     public function show(Request $request)
     {
+        $q = trim((string) $request->input('q', ''));
+
         // -----------------------------
         // 1) 入力の正規化（'' を null に）
         // -----------------------------
@@ -68,9 +71,18 @@ class RefereesController extends Controller
         // 2) 一覧（refs）
         // -----------------------------
         $refsQuery = Referee::query()
-            ->with(['license', 'organization'])
-            ->when($licId, fn($q) => $q->where('license_id', $licId))
-            ->when($orgId, fn($q) => $q->where('organization_id', $orgId))
+            ->with(['license', 'organization', 'user', 'licenseHistories'])
+            ->when($licId, fn($q2) => $q2->where('license_id', $licId))
+            ->when($orgId, fn($q2) => $q2->where('organization_id', $orgId))
+            ->when($q !== '', function ($q2) use ($q) {
+                $q2->where(function ($sub) use ($q) {
+                    $sub->where('surname_kanji', 'like', "%{$q}%")
+                        ->orWhere('name_kanji', 'like', "%{$q}%")
+                        ->orWhere('surname_kana', 'like', "%{$q}%")
+                        ->orWhere('name_kana', 'like', "%{$q}%")
+                        ->orWhere('registration_number', 'like', "%{$q}%");
+                });
+            })
             ->orderBy('organization_id')
             ->orderBy('registration_number');
 
@@ -149,6 +161,7 @@ class RefereesController extends Controller
             'allRefs',
             'lics',
             'orgs',
+            'q',
         ));
     }
 
@@ -243,11 +256,13 @@ class RefereesController extends Controller
             'organization_id'=> ['required','integer','exists:organizations,id'],
             'prefecture_id'  => ['required','integer','exists:prefectures,id'],
             'birth_date'     => ['required','date'],
+            'gender'         => ['nullable','integer'],
             'mrs_member_id'  => ['nullable','string','max:50'],
             'remarks'        => ['nullable','string','max:2000'],
         ]);
 
         // ① 重複疑いの検索（漢字/カナ/英字のどれかのセット一致）
+
         $dups = $this->findPossibleDuplicates($v);
 
         if ($dups->isNotEmpty()) {
@@ -279,6 +294,7 @@ class RefereesController extends Controller
                 'organization_id'    => $v['organization_id'],
                 'license_id'         => $v['license_id'],
                 'birth_date'         => $v['birth_date'],
+                'gender'             => $v['gender'] ?? null,
                 'mrs_member_id'      => $v['mrs_member_id'] ?? null,
                 'remarks'            => $v['remarks'] ?? null,
             ]);
@@ -340,7 +356,9 @@ class RefereesController extends Controller
 
     public function edit(Request $request, $id)
     {
-        $referee = $this->referee->findOrFail($id);
+        $referee = $this->referee
+            ->with(['licenseHistories.license'])
+            ->findOrFail($id);
 
         $matched = $this->user->where('surname_kana', $referee->surname_kana)
             ->where('name_kana',  $referee->name_kana)
@@ -369,10 +387,11 @@ class RefereesController extends Controller
         }
 
         return view('admin.referees.edit')
-                ->with('referee', $referee)
-                ->with('matched', $matched)
-                ->with('q', $q)
-                ->with('candidates', $candidates);
+            ->with('referee', $referee)
+            ->with('matched', $matched)
+            ->with('q', $q)
+            ->with('candidates', $candidates)
+            ->with('licenses', License::orderBy('id')->get());
     }
 
     // 紐付け: referees.user_id を更新
@@ -467,6 +486,28 @@ class RefereesController extends Controller
             'hasDuplicates' => $dups->isNotEmpty(),
             'candidates'    => $dups, // 必要なら整形して返す
         ]);
+    }
+
+    public function storeLicenseHistory(Request $request, Referee $referee)
+    {
+        $v = $request->validate([
+            'license_id' => ['required', 'integer', 'exists:licenses,id'],
+            'acquired_year' => ['nullable', 'integer', 'min:1950', 'max:' . now()->year],
+            'note' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $referee->licenseHistories()->create($v);
+
+        return back()->with('status', '資格履歴を追加しました');
+    }
+
+    public function destroyLicenseHistory(Referee $referee, RefereeLicenseHistory $history)
+    {
+        abort_unless($history->referee_id === $referee->id, 404);
+
+        $history->delete();
+
+        return back()->with('status', '資格履歴を削除しました');
     }
 
 }

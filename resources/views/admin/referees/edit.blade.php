@@ -195,6 +195,97 @@
                 @endif
             </div>
         </div>
+        <div class="col-10 mt-4">
+            <div class="card">
+                <div class="card-header">
+                    資格履歴
+                </div>
+
+                <div class="card-body">
+
+                    <form method="POST"
+                        action="{{ route('admin.referees.license-histories.store', $referee) }}"
+                        class="row g-2 mb-3">
+                        @csrf
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label">資格</label>
+                            <select name="license_id" class="form-select">
+                                <option value="">選択してください</option>
+                                @foreach ($licenses as $license)
+                                    <option value="{{ $license->id }}">
+                                        {{ $license->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-md-3">
+                            <label class="form-label">取得年</label>
+                            <input type="number"
+                                name="acquired_year"
+                                class="form-control"
+                                min="1950"
+                                max="{{ now()->year }}"
+                                placeholder="例：2024">
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label">備考</label>
+                            <input type="text"
+                                name="note"
+                                class="form-control"
+                                placeholder="例：京都府で取得">
+                        </div>
+
+                        <div class="col-12 col-md-1 d-flex align-items-end">
+                            <button type="submit" class="btn btn-success btn-sm w-100">
+                                <i class="fa-solid fa-plus"></i>追加
+                            </button>
+                        </div>
+                    </form>
+
+                    <table class="table table-sm table-bordered align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>資格</th>
+                                <th>取得年</th>
+                                <th>備考</th>
+                                <th style="width: 80px;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($referee->licenseHistories->sortBy('acquired_year') as $history)
+                                <tr>
+                                    <td>{{ $history->license?->name ?? '-' }}</td>
+                                    <td>{{ $history->acquired_year ? $history->acquired_year . '年' : '-' }}</td>
+                                    <td>{{ $history->note }}</td>
+                                    <td>
+                                        <form method="POST"
+                                            action="{{ route('admin.referees.license-histories.destroy', [$referee, $history]) }}"
+                                            onsubmit="return confirm('この資格履歴を削除しますか？');">
+                                            @csrf
+                                            @method('DELETE')
+
+                                            <button class="btn btn-sm btn-outline-danger">
+                                                削除
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-muted text-center">
+                                        資格履歴はまだ登録されていません
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 @endsection

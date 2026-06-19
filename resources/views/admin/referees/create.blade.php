@@ -54,14 +54,30 @@
                 <input type="text" name="name" value="{{ old('name') }}" class="form-control" required>
                 @error('name')<div class="text-danger small">{{ $message }}</div>@enderror
             </div>
-        
-            <div class="col-md-4">
+
+            <div class="col-md-3">
+                <label class="form-label">性別</label>
+
+                <select name="gender" class="form-select">
+                    <option value="">選択してください</option>
+                    <option value="1"
+                        @selected(old('gender', $referee->gender ?? '')=='male')>
+                        男性
+                    </option>
+                    <option value="2"
+                        @selected(old('gender', $referee->gender ?? '')=='female')>
+                        女性
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
                 <label class="form-label">登録番号</label>
                 <input type="text" name="registration_number" value="{{ old('registration_number') }}" class="form-control">
                 @error('registration_number')<div class="text-danger small">{{ $message }}</div>@enderror
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label class="form-label">
                     所属団体 <span class="text-danger" style="font-size: 1em">*</span>
                 </label>
@@ -74,7 +90,7 @@
                 @error('organization_id')<div class="text-danger small">{{ $message }}</div>@enderror
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label class="form-label">
                     資格 <span class="text-danger" style="font-size: 1em">*</span>
                 </label>
@@ -87,7 +103,7 @@
                 @error('license_id')<div class="text-danger small">{{ $message }}</div>@enderror
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label class="form-label">
                     都道府県 <span class="text-danger" style="font-size: 1em">*</span>
                 </label>
@@ -100,7 +116,7 @@
                 @error('prefecture_id')<div class="text-danger small">{{ $message }}</div>@enderror
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label class="form-label">
                     生年月日 <span class="text-danger" style="font-size: 1em">*</span>
                 </label>
@@ -108,8 +124,8 @@
                 @error('birth_date')<div class="text-danger small">{{ $message }}</div>@enderror
             </div>
 
-            <div class="col-md-4">
-                <label class="form-label">MRS会員番号</label>
+            <div class="col-md-3">
+                <label class="form-label">JVA-MRS ID</label>
                 <input type="text" name="mrs_member_id" value="{{ old('mrs_member_id') }}" class="form-control">
                 @error('mrs_member_id')<div class="text-danger small">{{ $message }}</div>@enderror
             </div>

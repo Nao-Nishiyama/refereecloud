@@ -57,6 +57,7 @@ Route::group(['middleware' => 'auth'], function(){
         Route::post('/referees/export', [RefereeExportController::class, 'export'])
             ->name('referees.export');
 
+        // 一覧
         Route::get('/referees', [RefereesController::class, 'index'])
             ->name('referees');
         Route::get('/referees/show', [RefereesController::class, 'show'])
@@ -89,6 +90,12 @@ Route::group(['middleware' => 'auth'], function(){
         Route::post('/referees/approvals/bulk-approve', [RefereeApprovalsController::class, 'bulkApprove'])
             ->name('referee.approvals.bulkApprove');
 
+        Route::post('/referees/{referee}/license-histories', [RefereesController::class, 'storeLicenseHistory'])
+            ->name('referees.license-histories.store');
+
+        Route::delete('/referees/{referee}/license-histories/{history}', [RefereesController::class, 'destroyLicenseHistory'])
+            ->name('referees.license-histories.destroy');
+            
         Route::get ('/referees/duplicate-report',  [ReportController::class, 'duplicateCreate'])
             ->name('referees.duplicate.report.create');
         Route::post('/referees/duplicate-report',  [ReportController::class, 'duplicateStore'])
@@ -128,8 +135,8 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get ('/nominations/capacities/edit', [NominationCapacityController::class,'edit'])->name('nominations.capacities.edit');
         Route::patch('/nominations/capacities/update', [NominationCapacityController::class,'bulkUpdate'])->name('nominations.capacities.bulkUpdate');
 
-        Route::get('/applicatitions', [ApplicationsController::class, 'show'])->name('applications');
-        Route::get('/applicatitions/{id}/detail', [ApplicationsController::class, 'application'])->name('applications.detail');
+        Route::get('/applications', [ApplicationsController::class, 'show'])->name('applications');
+        Route::get('/applications/{id}/detail', [ApplicationsController::class, 'application'])->name('applications.detail');
 
         Route::get('profiles/{id}/edit', [ProfilesController::class, 'edit'])->name('profiles.edit');
         Route::patch('profiles/{id}/update', [ProfilesController::class, 'update'])->name('profiles.update');
