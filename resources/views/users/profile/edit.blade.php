@@ -88,6 +88,28 @@
                         @enderror
                     </div>
                     
+                    {{-- 性別 --}}
+                    <div class="mb-3">
+                        <label for="gender" class="form-label">性別</label>
+
+                        <select name="gender" id="gender" class="form-control">
+                            <option value="">選択してください</option>
+
+                            <option value="1"
+                                @selected((string) old('gender', $user->referee->gender) === '1')>
+                                男性
+                            </option>
+
+                            <option value="2"
+                                @selected((string) old('gender', $user->referee->gender) === '2')>
+                                女性
+                            </option>
+                        </select>
+
+                        @error('gender')
+                            <p class="text-danger small">{{ $message }}</p>
+                        @enderror
+                    </div>
                     {{-- 都道府県 --}}
                     <div class="mb-3">
                         <label for="prefecture_id" class="form-label">都道府県</label>

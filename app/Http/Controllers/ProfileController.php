@@ -54,53 +54,63 @@ class ProfileController extends Controller
 
     public function update(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'surname_kanji' => ['required', 'string', 'max:255'],
             'name_kanji'    => ['required', 'string', 'max:255'],
             'surname_kana'  => ['required', 'string', 'max:255'],
             'name_kana'     => ['required', 'string', 'max:255'],
             'surname'       => ['required', 'string', 'max:255'],
             'name'          => ['required', 'string', 'max:255'],
+
             'registration_number' => ['required', 'string', 'max:255'],
-            'prefecture_id' => ['required'],
-            'license_id'    => ['required'],
-            'birth_date'    => ['required'],
-            'email'         => 'required|email|max:255|unique:users,email,' . Auth::user()->id,
-            'remarks'       => ['nullable', 'string', 'max:1000'],
+            'birth_date'          => ['required', 'date'],
+            'gender'              => ['nullable', 'integer', 'in:1,2'],
+
+            'prefecture_id' => ['required', 'integer', 'exists:prefectures,id'],
+            'organization_id' => ['required', 'integer', 'exists:organizations,id'],
+            'license_id'    => ['required', 'integer', 'exists:licenses,id'],
+
+            'category'   => ['nullable', 'array'],
+            'category.*' => ['integer', 'exists:categories,id'],
+
+            'mrs_member_id' => ['nullable', 'string', 'max:50'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email,' . Auth::id()],
+            'remarks' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $user = $this->user->findOrFail(Auth::user()->id);
+        $user = $this->user->findOrFail(Auth::id());
 
-        $user->surname_kana = $request->surname_kana;
-        $user->name_kana    = $request->name_kana;
-        $user->email        = $request->email;
+        $user->surname_kana = $validated['surname_kana'];
+        $user->name_kana    = $validated['name_kana'];
+        $user->email        = $validated['email'];
         $user->save();
-        
+
         $referee = $user->referee;
-        $referee->surname_kanji = $request->surname_kanji;
-        $referee->name_kanji    = $request->name_kanji;
-        $referee->surname_kana  = $request->surname_kana;
-        $referee->name_kana     = $request->name_kana;
-        $referee->surname       = $request->surname;
-        $referee->name          = $request->name;
-        $referee->registration_number = $request->registration_number;
-        $referee->prefecture_id = $request->prefecture_id;
-        $referee->license_id    = $request->license_id;
-        $referee->birth_date    = $request->birth_date;
-        $referee->mrs_member_id = $request->mrs_member_id;
-        $referee->remarks       = $request->remarks;
+
+        $referee->surname_kanji = $validated['surname_kanji'];
+        $referee->name_kanji    = $validated['name_kanji'];
+        $referee->surname_kana  = $validated['surname_kana'];
+        $referee->name_kana     = $validated['name_kana'];
+        $referee->surname       = $validated['surname'];
+        $referee->name          = $validated['name'];
+
+        $referee->registration_number = $validated['registration_number'];
+        $referee->birth_date          = $validated['birth_date'];
+        $referee->gender              = $validated['gender'] ?? null;
+
+        $referee->prefecture_id   = $validated['prefecture_id'];
+        $referee->organization_id = $validated['organization_id'];
+        $referee->license_id      = $validated['license_id'];
+
+        $referee->mrs_member_id = $validated['mrs_member_id'] ?? null;
+        $referee->remarks       = $validated['remarks'] ?? null;
+
         $referee->save();
 
-        $user->referee->categories()->detach();
-        
-        if ($request->filled('category')) {
-            $category_referee = [];
-            foreach($request->category as $category_id){
-                $category_referee[] = ['category_id' => $category_id];
-            }
-            $referee->categories()->attach($category_referee);
-        }
+        $referee->categories()->sync($validated['category'] ?? []);
 
-        return redirect()->route('profile.show');
+        return redirect()
+            ->route('profile.show')
+            ->with('status', '登録情報を更新しました');
     }
 }

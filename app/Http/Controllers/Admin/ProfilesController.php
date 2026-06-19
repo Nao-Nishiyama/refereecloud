@@ -62,6 +62,9 @@ class ProfilesController extends Controller
             'prefecture_id' => ['required'],
             'organization_id' => ['required'],
             'license_id'    => ['required'],
+            'birth_date' => ['required', 'date'],
+            'gender'        => ['nullable', 'integer', 'in:1,2'],
+            'mrs_member_id' => ['nullable', 'string', 'max:50'],
             'remarks'       => ['nullable', 'string', 'max:1000'],
         ]);
 
@@ -91,6 +94,7 @@ class ProfilesController extends Controller
         $ref->organization_id = $request->organization_id;
         $ref->license_id    = $request->license_id;
         $ref->birth_date    = $request->birth_date;
+        $ref->gender        = $request->gender;
         $ref->mrs_member_id = $request->mrs_member_id;
         $ref->remarks       = $request->remarks;
         $ref->save();

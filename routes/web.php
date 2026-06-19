@@ -142,6 +142,9 @@ Route::group(['middleware' => 'auth'], function(){
         Route::patch('profiles/{id}/update', [ProfilesController::class, 'update'])->name('profiles.update');
 
         Route::resource('trainings', TrainingAdminController::class)->except(['show']);
+
+        Route::get('/referees/import/template', [RefereeImportController::class, 'template'])
+        ->name('referees.import.template');
     });
 
     Route::middleware(['auth','is.chief'])->group(function () {

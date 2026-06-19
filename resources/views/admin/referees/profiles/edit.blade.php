@@ -86,6 +86,22 @@
                     @enderror
                 </div>
                 
+                {{-- 性別 --}}
+                <div class="mb-3">
+                    <label class="form-label">性別</label>
+                    <select name="gender" class="form-select">
+                        <option value="">選択してください</option>
+
+                        <option value="1" @selected((string) old('gender', $ref->gender) === '1')>
+                            男性
+                        </option>
+
+                        <option value="2" @selected((string) old('gender', $ref->gender) === '2')>
+                            女性
+                        </option>
+                    </select>
+                </div>
+                {{-- 都道府県 --}}
                 <div class="mb-3">
                     <label for="prefecture_id" class="form-label">都道府県</label>
                     <select name="prefecture_id" id="prefecture_id" class="form-control">
@@ -183,7 +199,23 @@
                         <p class="text-danger small">{{ $message }}</p>
                     @enderror
                 </div>
-                <button type="submit" class="btn btn-primary px-5">保存する</button>
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary px-5">
+                        保存する
+                    </button>
+
+                    @if (Auth::user()->role_id === 3)
+                        <a href="{{ route('admin.referees.showForChief', ['organization' => optional(Auth::user()->referee)->organization_id]) }}"
+                        class="btn btn-outline-secondary px-4">
+                            一覧へ戻る
+                        </a>
+                    @else
+                        <a href="{{ route('admin.referees.show') }}"
+                        class="btn btn-outline-secondary px-4">
+                            一覧へ戻る
+                        </a>
+                    @endif
+                </div>
             </form>
         </div>
         </div>
