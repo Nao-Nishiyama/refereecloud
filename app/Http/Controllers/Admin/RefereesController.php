@@ -70,10 +70,19 @@ class RefereesController extends Controller
         // -----------------------------
         // 2) 一覧（refs）
         // -----------------------------
+
+        $currentLicenseYears = DB::table('referee_license_histories')
+            ->selectRaw('referee_id, license_id, MIN(acquired_year) as current_license_year')
+            ->groupBy('referee_id', 'license_id');
+            
         $refsQuery = Referee::query()
+            ->leftJoinSub($currentLicenseYears, 'cly', function ($join) {
+                $join->on('cly.referee_id', '=', 'referees.id')
+                    ->on('cly.license_id', '=', 'referees.license_id');
+            })
             ->with(['license', 'organization', 'user', 'licenseHistories'])
-            ->when($licId, fn($q2) => $q2->where('license_id', $licId))
-            ->when($orgId, fn($q2) => $q2->where('organization_id', $orgId))
+            ->when($licId, fn($q2) => $q2->where('referees.license_id', $licId))
+            ->when($orgId, fn($q2) => $q2->where('referees.organization_id', $orgId))
             ->when($q !== '', function ($q2) use ($q) {
                 $q2->where(function ($sub) use ($q) {
                     $sub->where('surname_kanji', 'like', "%{$q}%")
@@ -84,7 +93,9 @@ class RefereesController extends Controller
                 });
             })
             ->orderBy('organization_id')
-            ->orderBy('registration_number');
+            ->orderBy('license_id')
+            ->orderBy('cly.current_license_year')
+            ->select('referees.*');
 
         if ($canViewTrashed) {
             if ($mode === 'with') $refsQuery->withTrashed();
