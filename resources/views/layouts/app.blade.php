@@ -18,13 +18,19 @@
 
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+    
 </head>
 <body>
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}">
-                    <i class="fa-solid fa-volleyball"></i> {{ config('app.name', 'Referee Cloud') }}
+                        <img src="{{ asset('logo.png') }}"
+         alt="Referee Cloud"
+         width="48"
+         height="48"
+         class="me-2"> {{ config('app.name', 'Referee Cloud') }}
                 </a>
 
                 <button class="navbar-toggler border-0" type="button"
