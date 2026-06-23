@@ -18,7 +18,7 @@
 
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 
-    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+    <link rel="icon" type="image/png" href="/favicon.png?v=3">
     
 </head>
 <body>

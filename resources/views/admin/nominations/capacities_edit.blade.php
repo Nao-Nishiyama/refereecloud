@@ -107,6 +107,7 @@
           </tr>
         </thead>
         <tbody>
+          
         @foreach ($competitions as $competition)
           @php
             // 大会内の nomination を「日付 → official_id」で並べ、日付ごとにグループ化

@@ -59,7 +59,7 @@
                 </div>
               </td>
 
-              <td class="text-nowrap">
+              <td class="text-nowrap text-center">
                 {{ $start->format('y/n/j') }}
                 @if (!$start->isSameDay($end))
                   –
@@ -68,7 +68,7 @@
               </td>
 
               {{-- 締切 --}}
-              <td class="text-nowrap">
+              <td class="text-nowrap text-center">
                 {{ $deadline ? $deadline->format('n/j') : '-' }}
               </td>
 
