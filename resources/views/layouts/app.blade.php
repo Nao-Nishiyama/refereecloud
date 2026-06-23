@@ -26,11 +26,11 @@
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}">
-                        <img src="{{ asset('logo.png') }}"
-         alt="Referee Cloud"
-         width="48"
-         height="48"
-         class="me-2"> {{ config('app.name', 'Referee Cloud') }}
+                    <img src="{{ asset('logo.png') }}"
+                        alt="Referee Cloud"
+                        width="48"
+                        height="48"
+                        class="me-2"> {{ config('app.name', 'Referee Cloud') }}
                 </a>
 
                 <button class="navbar-toggler border-0" type="button"
